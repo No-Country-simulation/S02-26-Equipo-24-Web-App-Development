@@ -4,7 +4,7 @@ FROM eclipse-temurin:21-jdk
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar todo el proyecto
+
 COPY . .
 
 # Dar permisos al wrapper de Maven
