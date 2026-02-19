@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginAction } from "./login.actions";
 import Link from "next/link";
 
 export default function Login() {
@@ -25,7 +26,7 @@ export default function Login() {
 
         {/* Login Card */}
         <Card className="shadow-xl p-8 border-slate-200">
-          <form className="space-y-6">
+          <form action={loginAction} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input
@@ -50,9 +51,8 @@ export default function Login() {
 
             <Button 
               type="submit" 
-              className="bg-blue-600 hover:bg-blue-700 w-full"
-            
-            >Iniciar Sesión
+              className="bg-blue-600 hover:bg-blue-700 w-full">
+                Iniciar Sesión
             </Button>
           </form>
 

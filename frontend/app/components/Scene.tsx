@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { useSurgeryStore } from "../store/surgeryStore";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -117,6 +119,16 @@ export default function BabylonScene() {
       engine.dispose();
     };
   }, []);
-
-  return <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }} />;
+  return (
+  <div>
+    <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }} />
+    <Link href={"/"}>
+      <Button
+        variant="outline"
+        className="mt-4 w-full text-slate-600 hover:text-slate-900"
+      >
+        Volver al Inicio
+      </Button>
+    </Link>
+  </div>);
 }

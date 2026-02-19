@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Brain, Target, Activity, Shield } from "lucide-react";
 import Footer from "../components/footer";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -20,12 +21,14 @@ export default function Home() {
               simulaciones digitales avanzadas. Evalúa la interacción humano-robot y valida decisiones de diseño 
               antes de construir hardware complejo.
             </p>
-            <Button  
-              size="lg" 
-              className="bg-blue-600 hover:bg-blue-700 px-8 text-lg"
-            >
-              Comenzar Simulación
-            </Button>
+            <Link href="/simulator">
+              <Button  
+                size="lg" 
+                className="bg-blue-600 hover:bg-blue-700 px-8 text-lg"
+              >
+                Comenzar Simulación
+              </Button>
+            </Link>
           </div>
           <div className="relative">
             <Image
