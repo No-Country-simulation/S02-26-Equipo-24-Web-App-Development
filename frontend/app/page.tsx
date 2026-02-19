@@ -1,68 +1,90 @@
 import Image from "next/image";
+import Navbar from "../components/nav";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Brain, Target, Activity, Shield } from "lucide-react";
+import Footer from "../components/footer";
 
 export default function Home() {
   return (
-    <div className="flex justify-center items-center bg-zinc-50 dark:bg-black min-h-screen font-sans">
-      <main className="flex flex-col justify-between items-center sm:items-start bg-white dark:bg-black px-16 py-32 w-full max-w-3xl min-h-screen">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-         <div className="font-bold text-purple-600 text-2xl">
-      Tailwind funciona 🚀
-    </div>
-        <div className="flex flex-col items-center sm:items-start gap-6 sm:text-left text-center">
-          <h1 className="max-w-xs font-semibold text-black dark:text-zinc-50 text-3xl leading-10 tracking-tight">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-zinc-600 dark:text-zinc-400 text-lg leading-8">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex flex-col min-h-screen font-sans">
+      <Navbar />
+       <section className="mx-auto px-6 py-16 md:py-24 container">
+        <div className="items-center gap-12 grid md:grid-cols-2">
+          <div>
+            <h1 className="mb-6 font-bold text-slate-900 text-4xl md:text-5xl">
+              Simulación Digital para Robots Quirúrgicos
+            </h1>
+            <p className="mb-8 text-slate-600 text-lg leading-relaxed">
+              Reduce el riesgo técnico, clínico y económico en el desarrollo de robots quirúrgicos mediante 
+              simulaciones digitales avanzadas. Evalúa la interacción humano-robot y valida decisiones de diseño 
+              antes de construir hardware complejo.
+            </p>
+            <Button  
+              size="lg" 
+              className="bg-blue-600 hover:bg-blue-700 px-8 text-lg"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex sm:flex-row flex-col gap-4 font-medium text-base">
-          <a
-            className="flex justify-center items-center gap-2 bg-foreground hover:bg-[#383838] dark:hover:bg-[#ccc] px-5 rounded-full w-full md:w-[158px] h-12 text-background transition-colors"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+              Comenzar Simulación
+            </Button>
+          </div>
+          <div className="relative">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="https://images.unsplash.com/photo-1691935152212-596d5ee37383?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpY2FsJTIwcm9ib3QlMjBzdXJnZXJ5JTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NzA5MzQ0Njd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+              alt="Tecnología médica robótica"
+              className="shadow-2xl rounded-lg w-full"
+              width={600}
+              height={400}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex justify-center items-center hover:bg-black/[.04] dark:hover:bg-[#1a1a1a] px-5 border border-black/[.08] hover:border-transparent dark:border-white/[.145] border-solid rounded-full w-full md:w-[158px] h-12 transition-colors"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
         </div>
-      </main>
+      </section>
+       <section className="mx-auto px-6 py-16 container">
+        <h2 className="mb-12 font-bold text-slate-900 text-3xl text-center">
+          Beneficios de la Simulación Digital
+        </h2>
+        <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-4">
+          <Card className="hover:shadow-lg p-6 border-slate-200 transition-shadow">
+            <div className="flex justify-center items-center bg-blue-100 mb-4 rounded-lg w-12 h-12">
+              <Brain className="size-6 text-blue-600" />
+            </div>
+            <h3 className="mb-2 font-semibold text-slate-900">Validación de Diseño</h3>
+            <p className="text-slate-600">
+              Valida decisiones de diseño antes de construir prototipos físicos costosos.
+            </p>
+          </Card>
+
+          <Card className="hover:shadow-lg p-6 border-slate-200 transition-shadow">
+            <div className="flex justify-center items-center bg-green-100 mb-4 rounded-lg w-12 h-12">
+              <Target className="size-6 text-green-600" />
+            </div>
+            <h3 className="mb-2 font-semibold text-slate-900">Evaluación de Interacción</h3>
+            <p className="text-slate-600">
+              Analiza la interacción humano-robot en entornos quirúrgicos simulados.
+            </p>
+          </Card>
+
+          <Card className="hover:shadow-lg p-6 border-slate-200 transition-shadow">
+            <div className="flex justify-center items-center bg-purple-100 mb-4 rounded-lg w-12 h-12">
+              <Activity className="size-6 text-purple-600" />
+            </div>
+            <h3 className="mb-2 font-semibold text-slate-900">Simulación de Procedimientos</h3>
+            <p className="text-slate-600">
+              Simula procedimientos quirúrgicos complejos de forma segura y repetible.
+            </p>
+          </Card>
+
+          <Card className="hover:shadow-lg p-6 border-slate-200 transition-shadow">
+            <div className="flex justify-center items-center bg-amber-100 mb-4 rounded-lg w-12 h-12">
+              <Shield className="size-6 text-amber-600" />
+            </div>
+            <h3 className="mb-2 font-semibold text-slate-900">Reducción de Riesgo</h3>
+            <p className="text-slate-600">
+              Minimiza riesgos técnicos, clínicos y económicos en las etapas tempranas.
+            </p>
+          </Card>
+        </div>
+      </section>
+       <Footer />
     </div>
   );
 }
