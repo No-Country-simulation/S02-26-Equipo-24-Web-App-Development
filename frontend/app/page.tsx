@@ -12,9 +12,9 @@ export default function Home() {
           height={20}
           priority
         />
-         <div className="font-bold text-purple-600 text-2xl">
-      Tailwind funciona 🚀
-    </div>
+        <div className="font-bold text-purple-600 text-2xl">
+          Tailwind funciona 🚀
+        </div>
         <div className="flex flex-col items-center sm:items-start gap-6 sm:text-left text-center">
           <h1 className="max-w-xs font-semibold text-black dark:text-zinc-50 text-3xl leading-10 tracking-tight">
             To get started, edit the page.tsx file.
