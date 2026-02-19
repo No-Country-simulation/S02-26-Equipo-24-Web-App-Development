@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@babylonjs/core": "^8.51.2",
+    "@babylonjs/gui": "^8.51.2",
+    "@babylonjs/loaders": "^8.51.2",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
