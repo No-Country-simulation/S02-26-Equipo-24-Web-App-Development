@@ -1,9 +1,9 @@
 import Image from "next/image";
-import Navbar from "../components/nav";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
+import Navbar from "./components/nav";
+import { Button } from "./components/ui/button";
+import { Card } from "./components/ui/card";
 import { Brain, Target, Activity, Shield } from "lucide-react";
-import Footer from "../components/footer";
+import Footer from "./components/footer";
 import Link from "next/link";
 
 export default function Home() {

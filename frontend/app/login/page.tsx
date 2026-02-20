@@ -1,8 +1,8 @@
 import { Activity, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/app/components/ui/button";
+import { Card } from "@/app/components/ui/card";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
 import { loginAction } from "./login.actions";
 import Link from "next/link";
 
@@ -48,12 +48,13 @@ export default function Login() {
                 className="border-slate-300"
               />
             </div>
-
+          <Link href="/dashboard">
             <Button 
               type="submit" 
               className="bg-blue-600 hover:bg-blue-700 w-full">
                 Iniciar Sesión
             </Button>
+          </Link>
           </form>
 
           <div className="mt-6 text-slate-600 text-sm text-center">

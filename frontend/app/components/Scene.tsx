@@ -5,7 +5,7 @@ import * as BABYLON from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { useSurgeryStore } from "../store/surgeryStore";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 
 export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
