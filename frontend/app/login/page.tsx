@@ -57,8 +57,18 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 text-slate-600 text-sm text-center">
+         <div className="mt-6 text-slate-600 text-sm text-center">
             <p>¿Olvidaste tu contraseña? <button className="text-blue-600 hover:underline">Recuperar</button></p>
+            <p className="mt-2">
+              ¿No tienes cuenta?{" "}
+              <Link href="/register">
+              <button 
+                className="font-medium text-blue-600 hover:underline"
+              >
+                Registrarse
+              </button>
+              </Link>
+            </p>
           </div>
         </Card>
 
