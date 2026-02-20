@@ -31,6 +31,7 @@ export default function Login() {
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="usuario@ejemplo.com"
                 required
@@ -42,19 +43,18 @@ export default function Login() {
               <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 required
                 className="border-slate-300"
               />
             </div>
-          <Link href="/dashboard">
             <Button 
               type="submit" 
               className="bg-blue-600 hover:bg-blue-700 w-full">
                 Iniciar Sesión
             </Button>
-          </Link>
           </form>
 
           <div className="mt-6 text-slate-600 text-sm text-center">
