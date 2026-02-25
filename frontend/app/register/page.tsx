@@ -6,16 +6,21 @@ import { Activity, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { registerAction } from "./register.actions";
 
-interface RegisterPageProps {
-    onRegister: () => void;
-    onNavigateToLogin: () => void;
-    onNavigateBack: () => void;
-}
-
-export default function RegisterPage() {
 
 
-    return (
+export default async function Login({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
+  const errorMessage =
+    params.error === "invalid_credentials"
+      ? "Correo o contraseña incorrectos"
+      : null;
+
+  return (
         <div className="flex justify-center items-center bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 p-6 min-h-screen">
             <div className="w-full max-w-md">
                 {/* Header */}
@@ -94,7 +99,9 @@ export default function RegisterPage() {
                                 className="border-slate-300"
                             />
                         </div>
-
+                        {errorMessage && (
+                            <p className="text-red-600 text-sm">{errorMessage}</p>
+                        )}
                         <Button
                             type="submit"
                             className="bg-blue-600 hover:bg-blue-700 w-full"
