@@ -21,7 +21,7 @@ export default function BabylonScene() {
     // Cámara laparoscópica
     const camera = new BABYLON.ArcRotateCamera(
       "camera",
-      Math.PI / 2,
+      -Math.PI / 2,
       Math.PI / 2.5,
       10,
       BABYLON.Vector3.Zero(),
@@ -35,11 +35,13 @@ export default function BabylonScene() {
     // Luz quirúrgica
     new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-    let scalpelMesh: BABYLON.Mesh | null = null;
-    let tumorMesh: BABYLON.Mesh | null = null;
+    let scalpelMesh: BABYLON.AbstractMesh | null = null;
+    const tumorFragments: BABYLON.Mesh[] = [];
     let arteryMesh: BABYLON.AbstractMesh | null = null;
 
+    let sceneReady = false;
     let instrumentActive = false;
+    let arteryCut = false;
 
     const cutter = BABYLON.MeshBuilder.CreateBox(
       "cutter",
@@ -54,12 +56,13 @@ export default function BabylonScene() {
       BABYLON.SceneLoader.ImportMeshAsync("", "/models/", "kidney.glb", scene),
       BABYLON.SceneLoader.ImportMeshAsync("", "/models/", "scalpel.glb", scene),
     ]).then(([kidneyResult, scalpelResult]) => {
-      const root = kidneyResult.meshes[0];
-      root.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+      // Configurar riñón
+      const kidney = kidneyResult.meshes[0];
+      kidney.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
 
-      const boundingInfo = root.getHierarchyBoundingVectors();
+      const boundingInfo = kidney.getHierarchyBoundingVectors();
       const center = boundingInfo.min.add(boundingInfo.max).scale(0.5);
-      root.position = root.position.subtract(center);
+      kidney.position = kidney.position.subtract(center);
 
       kidneyResult.meshes.forEach((mesh) => {
         if (mesh.name.toLowerCase().includes("red")) {
@@ -67,15 +70,22 @@ export default function BabylonScene() {
         }
       });
 
-      const realMesh = scalpelResult.meshes.find(
-        (m) => m instanceof BABYLON.Mesh && m.getTotalVertices() > 0,
-      ) as BABYLON.Mesh;
+      // Configurar bisturí
+      const scalpelRoot = scalpelResult.meshes[0];
+      scalpelRoot.setParent(null);
 
-      scalpelMesh = realMesh;
+      scalpelMesh = scalpelRoot as BABYLON.AbstractMesh;
+
+      scalpelMesh = scalpelRoot;
+
+      scalpelMesh.rotation = new BABYLON.Vector3(
+        BABYLON.Tools.ToRadians(0), // X
+        BABYLON.Tools.ToRadians(0), // Y
+        BABYLON.Tools.ToRadians(120), // Z
+      );
       scalpelMesh.scaling = new BABYLON.Vector3(0.3, 0.5, 0.5);
       scalpelMesh.position = new BABYLON.Vector3(2, 1, 2);
       scalpelMesh.setParent(null);
-      scalpelMesh.bakeCurrentTransformIntoVertices();
 
       let depth = 8; // distancia desde cámara
 
@@ -91,25 +101,95 @@ export default function BabylonScene() {
 
         const newPosition = ray.origin.add(ray.direction.scale(depth));
 
-        scalpelMesh.position = newPosition;
+        // Ajuste del cursor para que esté cerca de la hoja del bisturí
+        const offset = new BABYLON.Vector3(0.1, -0.2, 0);
 
-        cutter.position = scalpelMesh.position;
-        cutter.rotation = scalpelMesh.rotation;
+        scalpelMesh.position = newPosition.add(offset);
+
+        cutter.position = scalpelMesh.position.clone();
+        cutter.rotation = scalpelMesh.rotation.clone();
+
+        checkCollisions();
       };
+
+      scene.onPointerObservable.add((pointerInfo) => {
+        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+          instrumentActive = true;
+        }
+
+        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
+          instrumentActive = false;
+        }
+
+        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERWHEEL) {
+          const wheelEvent = pointerInfo.event as WheelEvent;
+          depth += wheelEvent.deltaY * 0.01;
+        }
+      });
+
+      sceneReady = true;
     });
 
-    // Crear tumor como esfera roja
-    tumorMesh = BABYLON.MeshBuilder.CreateSphere(
-      "tumor",
-      { diameter: 1.2, segments: 16 },
-      scene,
-    );
-
-    tumorMesh.position = new BABYLON.Vector3(1, -0.2, -0.3);
-
+    // Crear el tumor como fragmentos dispersos
     const tumorMaterial = new BABYLON.StandardMaterial("tumorMat", scene);
     tumorMaterial.diffuseColor = new BABYLON.Color3(0.8, 0, 0.2);
-    tumorMesh.material = tumorMaterial;
+
+    const fragmentCount = 25;
+    const radius = 0.6;
+
+    for (let i = 0; i < fragmentCount; i++) {
+      const fragment = BABYLON.MeshBuilder.CreateSphere(
+        "tumorFragment",
+        { diameter: 0.4, segments: 8 },
+        scene,
+      );
+
+      // Distribuir alrededor de un punto central
+      const randomOffset = new BABYLON.Vector3(
+        (Math.random() - 0.5) * radius,
+        (Math.random() - 0.5) * radius,
+        (Math.random() - 0.5) * radius,
+      );
+
+      fragment.position = new BABYLON.Vector3(1.2, 0.2, -0.7).add(randomOffset);
+      fragment.material = tumorMaterial;
+
+      tumorFragments.push(fragment);
+    }
+
+    function checkCollisions() {
+      if (!sceneReady) return;
+      if (!instrumentActive) return;
+      if (!cutter || !arteryMesh) return;
+
+      // 🔴 Detectar corte de arteria
+      if (!arteryCut && cutter.intersectsMesh(arteryMesh, true)) {
+        arteryCut = true;
+
+        const mat = new BABYLON.StandardMaterial("cut", scene);
+        mat.diffuseColor = BABYLON.Color3.Red();
+        arteryMesh.material = mat;
+
+        console.log("Arteria cortada 🔪");
+        setEvent("HEMORRHAGE");
+      }
+
+      // 🟢 Detectar corte de fragmentos
+      tumorFragments.forEach((fragment, index) => {
+        if (cutter.intersectsMesh(fragment, true)) {
+          fragment.dispose();
+          tumorFragments.splice(index, 1);
+
+          console.log("Fragmento removido 🧠");
+          setEvent("TUMOR_TOUCH");
+
+          if (tumorFragments.length === 0) {
+            console.log("Tumor completamente removido ✅");
+            setEvent("FINISH");
+          }
+        }
+      });
+    }
 
     engine.runRenderLoop(() => {
       scene.render();
@@ -118,17 +198,18 @@ export default function BabylonScene() {
     return () => {
       engine.dispose();
     };
-  }, []);
+  }, [setEvent]);
   return (
-  <div>
-    <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }} />
-    <Link href={"/"}>
-      <Button
-        variant="outline"
-        className="mt-4 w-full text-slate-600 hover:text-slate-900"
-      >
-        Volver al Inicio
-      </Button>
-    </Link>
-  </div>);
+    <div>
+      <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }} />
+      <Link href={"/"}>
+        <Button
+          variant="outline"
+          className="mt-4 w-full text-slate-600 hover:text-slate-900"
+        >
+          Volver al Inicio
+        </Button>
+      </Link>
+    </div>
+  );
 }
