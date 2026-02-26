@@ -5,11 +5,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.Justina.domain.dto.AuthResponseDTO;
+import project.Justina.domain.dto.UserResponseDTO;
 import project.Justina.domain.exception.AuthException;
 import project.Justina.domain.exception.UserAlreadyExistsException;
 import project.Justina.domain.model.User;
 import project.Justina.domain.repository.UserRepository;
 import project.Justina.infrastructure.security.JwtService;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.UUID;
 
@@ -70,5 +75,19 @@ public class AuthService {
         User newUser = new User(UUID.randomUUID(), username, encodedPassword, role);
 
         userRepository.save(newUser);
+    }
+
+    public UserResponseDTO getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthException("Usuario no autenticado");
+        }
+        
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        
+        return new UserResponseDTO(user.getId(), user.getUsername(), user.getRole());
     }
 }

@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import project.Justina.application.service.AuthService;
 import project.Justina.domain.dto.AuthResponseDTO;
 import project.Justina.domain.dto.LoginRequestDTO;
+import project.Justina.domain.dto.UserResponseDTO;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.Map;
 
@@ -101,6 +105,29 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/me")
+    @Operation(
+            summary = "Obtener datos del usuario autenticado",
+            description = "Retorna la información del usuario actualmente autenticado"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Datos del usuario obtenidos exitosamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Usuario no autenticado"
+            )
+    })
+    public UserResponseDTO getCurrentUser() {
+        return authService.getCurrentUser();
     }
 
 }
