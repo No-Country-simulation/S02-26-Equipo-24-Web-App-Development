@@ -4,10 +4,12 @@ import { Activity } from "lucide-react";
 import { modules } from "./module.data";
 import { ModuleCard } from "../components/dashboard/ModuleCard";
 import Footer from "@/app/components/footer";
+import UserHydrator from "./UserHydrator";
 
 export default function Dashboard() {
   return (
     <div className="bg-linear-to-b from-slate-50 to-white min-h-screen">
+      <UserHydrator />
       <Navbar />
 
       <main className="mx-auto px-6 py-12 container">

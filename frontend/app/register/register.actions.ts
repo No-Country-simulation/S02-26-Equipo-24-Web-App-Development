@@ -13,12 +13,14 @@ export async function registerAction(formData: FormData) {
     throw new Error("Missing credentials")
   }
 
-   const res = await post("/register", {
-    method: "POST",
-    body: JSON.stringify({ username, email, institution, password }),
+   const res = await post("/api/v1/auth/register", {
+    username,
+    email,
+    institution,
+    password,
   });
 
-  if (!res.ok) {
+  if (res.message !== "Usuario registrado con éxito" ) {
     redirect("/register?error=invalid_credentials");
   }
 

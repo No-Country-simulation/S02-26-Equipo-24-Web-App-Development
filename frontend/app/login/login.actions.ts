@@ -12,12 +12,14 @@ export async function loginAction(formData: FormData) {
     throw new Error("Missing credentials")
   }
 
-   const res = await post("/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password ,username }),
-  });
+  const res = await post("/api/v1/auth/login", {
+  username,
+  password,
+});
 
-  if (!res.ok) {
+  console.log("Login request:", { password ,username });
+  console.log("Login response:", res);
+  if (res.message !== "Login exitoso") {
     redirect("/login?error=invalid_credentials");
   }
 
