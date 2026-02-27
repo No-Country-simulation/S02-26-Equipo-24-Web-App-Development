@@ -16,7 +16,7 @@ export async function loginAction(formData: FormData) {
     password,
   });
 
-  if (res.error || res.statusCode && res.statusCode !== 200) {
+  if (res.error) {
     redirect("/login?error=invalid_credentials");
   }
 
