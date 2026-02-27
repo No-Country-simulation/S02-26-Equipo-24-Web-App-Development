@@ -39,12 +39,12 @@ export default async function Login({
         <Card className="shadow-xl p-8 border-slate-200">
           <form action={loginAction} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Correo Electrónico</Label>
+              <Label htmlFor="email">Nombre de usuario</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="usuario@ejemplo.com"
+                id="username"
+                name="username"
+                type="username"
+                placeholder="usuario"
                 required
                 className="border-slate-300"
               />
