@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as BABYLON from "@babylonjs/core";
+import * as GUI from "@babylonjs/gui";
 import "@babylonjs/loaders";
 import { useSurgeryStore } from "../store/surgeryStore";
 import Link from "next/link";
@@ -17,6 +18,60 @@ export default function BabylonScene() {
     const engine = new BABYLON.Engine(canvasRef.current, true);
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color4(0.8, 0.9, 1, 1);
+
+    const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    const coordPanel = new GUI.Rectangle();
+    coordPanel.width = "280px";
+    coordPanel.height = "160px";
+    coordPanel.cornerRadius = 10;
+    coordPanel.color = "black";
+    coordPanel.thickness = 2;
+    coordPanel.background = "rgba(245, 187, 187, 0.8)";
+    coordPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    coordPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    coordPanel.paddingRight = "20px";
+
+    advancedTexture.addControl(coordPanel);
+
+    const stack = new GUI.StackPanel();
+    stack.paddingTop = "15px";
+    stack.paddingLeft = "15px";
+    stack.paddingRight = "15px";
+
+    coordPanel.addControl(stack);
+
+    const title = new GUI.TextBlock();
+    title.text = "Coordenadas del Instrumento:";
+    title.color = "black";
+    title.fontSize = 16;
+    title.height = "30px";
+    title.paddingBottom = "10px";
+    title.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+    stack.addControl(title);
+
+    const textX = new GUI.TextBlock();
+    textX.color = "black";
+    textX.fontSize = 18;
+    textX.height = "30px";
+    textX.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+    const textY = new GUI.TextBlock();
+    textY.color = "black";
+    textY.fontSize = 18;
+    textY.height = "30px";
+    textY.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+    const textZ = new GUI.TextBlock();
+    textZ.color = "black";
+    textZ.fontSize = 18;
+    textZ.height = "30px";
+    textZ.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+    stack.addControl(textX);
+    stack.addControl(textY);
+    stack.addControl(textZ);
 
     // Cámara laparoscópica
     const camera = new BABYLON.ArcRotateCamera(
@@ -83,6 +138,7 @@ export default function BabylonScene() {
         BABYLON.Tools.ToRadians(0), // Y
         BABYLON.Tools.ToRadians(120), // Z
       );
+
       scalpelMesh.scaling = new BABYLON.Vector3(0.3, 0.5, 0.5);
       scalpelMesh.position = new BABYLON.Vector3(2, 1, 2);
       scalpelMesh.setParent(null);
@@ -98,6 +154,10 @@ export default function BabylonScene() {
           BABYLON.Matrix.Identity(),
           camera,
         );
+
+        textX.text = `Coordenada X: ${scalpelMesh.position.x.toFixed(2)}`;
+        textY.text = `Coordenada Y: ${scalpelMesh.position.y.toFixed(2)}`;
+        textZ.text = `Coordenada Z: ${scalpelMesh.position.z.toFixed(2)}`;
 
         const newPosition = ray.origin.add(ray.direction.scale(depth));
 
@@ -162,7 +222,7 @@ export default function BabylonScene() {
       if (!instrumentActive) return;
       if (!cutter || !arteryMesh) return;
 
-      // 🔴 Detectar corte de arteria
+      // Se detecta el corte de la arteria
       if (!arteryCut && cutter.intersectsMesh(arteryMesh, true)) {
         arteryCut = true;
 
@@ -174,7 +234,7 @@ export default function BabylonScene() {
         setEvent("HEMORRHAGE");
       }
 
-      // 🟢 Detectar corte de fragmentos
+      // Se detecta el corte de los fragmentos del tumor
       tumorFragments.forEach((fragment, index) => {
         if (cutter.intersectsMesh(fragment, true)) {
           fragment.dispose();
