@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import Navbar from "../components/nav";
 import { Card } from "@/app/components/ui/card";
