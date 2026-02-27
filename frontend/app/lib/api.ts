@@ -1,12 +1,38 @@
-import { API_URL } from "@/app/lib/config";
+import { API_URL } from "./config";
 
-export async function get<T>(url: string, options?: RequestInit) {
-  const res = await fetch(API_URL + url, options);
-  return res.json();
+export type ApiResponse<T = unknown> = {
+  message?: string;
+  data?: T;
+  error?: string;
+};
+
+export async function get<T = unknown>(
+  url: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_URL}${url}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...options,
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || "API GET error");
+  }
+
+  return data;
 }
 
-export async function post<T>(url: string, body: unknown, options?: RequestInit) {
-  const res = await fetch(API_URL + url, {
+export async function post<T = unknown>(
+  url: string,
+  body: unknown,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_URL}${url}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,5 +40,12 @@ export async function post<T>(url: string, body: unknown, options?: RequestInit)
     body: JSON.stringify(body),
     ...options,
   });
-  return res.json();
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || "API POST error");
+  }
+
+  return data;
 }
