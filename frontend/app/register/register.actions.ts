@@ -20,7 +20,7 @@ export async function registerAction(formData: FormData) {
     password,
   });
 
-  if (res.error || (res.statusCode && res.statusCode !== 200)) {
+  if (res.error ) {
     redirect("/register?error=invalid_credentials");
   }
 
