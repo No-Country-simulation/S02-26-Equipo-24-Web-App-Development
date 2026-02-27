@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Navbar from "../components/nav";
 import { Card } from "@/app/components/ui/card";
 import { Activity } from "lucide-react";
@@ -9,7 +10,9 @@ import UserHydrator from "./UserHydrator";
 export default function Dashboard() {
   return (
     <div className="bg-linear-to-b from-slate-50 to-white min-h-screen">
-      <UserHydrator />
+       <Suspense fallback={null} >
+        <UserHydrator />
+      </Suspense>
       <Navbar />
 
       <main className="mx-auto px-6 py-12 container">
