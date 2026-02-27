@@ -1,0 +1,24 @@
+{
+  "name": "s02-26-equipo-24-web-app-development",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/No-Country-simulation/S02-26-Equipo-24-Web-App-Development.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/No-Country-simulation/S02-26-Equipo-24-Web-App-Development/issues"
+  },
+  "homepage": "https://github.com/No-Country-simulation/S02-26-Equipo-24-Web-App-Development#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1"
+  }
+}
