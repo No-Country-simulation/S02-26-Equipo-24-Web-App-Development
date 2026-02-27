@@ -37,7 +37,7 @@ public class AuthService {
         }
 
         // 3. Generar el Token
-        String token = jwtService.createToken(user.getId(), user.getUsername());
+        String token = jwtService.createToken(user.getId(), user.getUsername(), user.getRole());
 
         // 4. Retornar el DTO completo con los datos del usuario real
         return new AuthResponseDTO(

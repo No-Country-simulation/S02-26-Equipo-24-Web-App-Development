@@ -17,13 +17,14 @@ public class JwtService {
 
     private final String issuer = "Justina_Backend";
 
-    public String createToken(UUID userId, String username) {
+    public String createToken(UUID userId, String username, String role) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         return JWT.create()
                 .withIssuer(issuer)
                 .withSubject(username)
-                .withClaim("userId", userId.toString()) // Metemos el ID como "Claim"
+                .withClaim("userId", userId.toString())
+                .withClaim("role", role)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 86400000)) // 1 dia
                 .sign(algorithm);
@@ -55,5 +56,14 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public String extractRole(String token) { 
+        return JWT.require(Algorithm.HMAC256(secretKey))
+                .withIssuer(issuer)
+                .build()
+                .verify(token)
+                .getClaim("role")
+                .asString();
     }
 }

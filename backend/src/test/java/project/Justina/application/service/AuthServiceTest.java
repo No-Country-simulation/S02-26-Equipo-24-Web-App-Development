@@ -64,7 +64,7 @@ class AuthServiceTest {
         // Given
         when(userRepository.findByUsername(testUsername)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(testPassword, encodedPassword)).thenReturn(true);
-        when(jwtService.createToken(testUserId, testUsername)).thenReturn(testToken);
+        when(jwtService.createToken(testUserId, testUsername, testUser.getRole())).thenReturn(testToken);
 
         // When
         AuthResponseDTO result = authService.login(testUsername, testPassword);
@@ -78,7 +78,7 @@ class AuthServiceTest {
 
         verify(userRepository).findByUsername(testUsername);
         verify(passwordEncoder).matches(testPassword, encodedPassword);
-        verify(jwtService).createToken(testUserId, testUsername);
+        verify(jwtService).createToken(testUserId, testUsername, testUser.getRole());
     }
 
     @Test
@@ -97,7 +97,7 @@ class AuthServiceTest {
 
         verify(userRepository).findByUsername(testUsername);
         verify(passwordEncoder, never()).matches(anyString(), anyString());
-        verify(jwtService, never()).createToken(any(), anyString());
+        verify(jwtService, never()).createToken(any(), anyString(), anyString());
     }
 
     @Test
@@ -117,7 +117,7 @@ class AuthServiceTest {
 
         verify(userRepository).findByUsername(testUsername);
         verify(passwordEncoder).matches(testPassword, encodedPassword);
-        verify(jwtService, never()).createToken(any(), anyString());
+        verify(jwtService, never()).createToken(any(), anyString(), anyString());
     }
 
     @Test

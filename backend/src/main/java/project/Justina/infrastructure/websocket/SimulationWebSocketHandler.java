@@ -78,6 +78,7 @@ public class SimulationWebSocketHandler extends TextWebSocketHandler {
 
             String response = String.format("{\"status\":\"SAVED\", \"surgeryId\":\"%s\"}", surgery.getId());
             session.sendMessage(new TextMessage(response));
+            AIWebSocketHandler.notificarNuevaCirugia(surgery.getId());
         }
     }
 }

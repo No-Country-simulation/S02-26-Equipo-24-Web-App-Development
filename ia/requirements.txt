@@ -2,3 +2,4 @@ requests
 pandas
 numpy
 python-dotenv
+websocket-client

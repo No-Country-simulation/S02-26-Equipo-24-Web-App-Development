@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/ws/simulation/**").permitAll()
+                        .requestMatchers("/ws/ai/**").permitAll()
 
                         // 1. Solo la IA puede publicar resultados (HU-06)
                         .requestMatchers(HttpMethod.POST, "/api/v1/surgeries/*/analysis").hasAuthority("ROLE_AI")

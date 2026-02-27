@@ -13,10 +13,15 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     private final SimulationWebSocketHandler simulationHandler;
     private final HandshakeInterceptorImpl handshakeInterceptor;
+    private final AIWebSocketHandler aiHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(simulationHandler, "/ws/simulation")
+                .addInterceptors(handshakeInterceptor)
+                .setAllowedOrigins("*");
+
+        registry.addHandler(aiHandler, "/ws/ai")
                 .addInterceptors(handshakeInterceptor)
                 .setAllowedOrigins("*");
     }

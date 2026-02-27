@@ -38,9 +38,11 @@ public class HandshakeInterceptorImpl implements HandshakeInterceptor {
         try {
             String username = jwtService.extractUsername(token);
             UUID userId = jwtService.extractUserId(token);
+            String role = jwtService.extractRole(token);
 
             attributes.put("SURGEON_ID", userId);
             attributes.put("USERNAME", username);
+            attributes.put("ROLE", role);
 
             return true;
         } catch (Exception e) {
