@@ -4,26 +4,25 @@ import { redirect } from "next/navigation"
 import { post } from "@/app/lib/api";
 
 export async function registerAction(formData: FormData) {
-  const username = formData.get("name")?.toString()
-  const email = formData.get("email")?.toString()
-  const institution = formData.get("institution")?.toString()
-  const password = formData.get("password")?.toString()
+  const username = formData.get("name")?.toString();
+  const email = formData.get("email")?.toString();
+  const institution = formData.get("institution")?.toString();
+  const password = formData.get("password")?.toString();
 
   if (!username || !email || !institution || !password) {
-    throw new Error("Missing credentials")
+    redirect("/register?error=missing_credentials");
   }
 
-   const res = await post("/api/v1/auth/register", {
+  const res = await post("/api/v1/auth/register", {
     username,
     email,
     institution,
     password,
   });
 
-  if (res.message !== "Usuario registrado con éxito" ) {
+  if (res.error || (res.statusCode && res.statusCode !== 200)) {
     redirect("/register?error=invalid_credentials");
   }
 
-  // ✅ si todo está bien
-  redirect("/login")
+  redirect("/login");
 }
