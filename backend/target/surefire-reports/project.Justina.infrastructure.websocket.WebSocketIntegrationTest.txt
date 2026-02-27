@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: project.Justina.infrastructure.websocket.WebSocketIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.105 s -- in project.Justina.infrastructure.websocket.WebSocketIntegrationTest

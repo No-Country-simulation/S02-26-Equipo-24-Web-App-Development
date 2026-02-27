@@ -16,37 +16,53 @@ class JustinaAIClient:
             "password": IA_PASSWORD
         }
 
-        response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
+        print(f"📝 Iniciando login como IA en {self.base_url}...")
+        try:
+            response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
+            if response.status_code != 200:
+                print(f"❌ Error en login: {response.status_code}")
+                return False
 
-        if response.status_code != 200:
-            raise Exception("Error autenticando IA")
-
-        data = response.json()
-        self.token = data["token"]
-        self.token_expiration = time.time() + (60 * 60 * 24)
-
-        print("✅ Login exitoso")
+            data = response.json()
+            self.token = data["token"]
+            self.token_expiration = time.time() + (60 * 60 * 24)
+            print("✅ Login exitoso")
+            return True
+        except Exception as e:
+            print(f"❌ Error de conexión: {e}")
+            return False
 
     def ensure_authenticated(self):
         if not self.token or time.time() > self.token_expiration:
-            self.login()
+            return self.login()
+        return True
 
     def get_trajectory(self, surgery_id):
-        self.ensure_authenticated()
+        if not self.ensure_authenticated():
+            return None
 
         url = f"{self.base_url}/api/v1/surgeries/{surgery_id}/trajectory"
         headers = {"Authorization": f"Bearer {self.token}"}
 
-        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
-
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print("Error obteniendo trayectoria:", response.status_code)
+        print(f"\n🔍 Obteniendo trayectoria de cirugía {surgery_id}...")
+        try:
+            response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+            if response.status_code == 200:
+                data = response.json()
+                print(f"✅ Trayectoria obtenida ({len(data['movements'])} movimientos)")
+                return data
+            elif response.status_code == 404:
+                print(f"❌ Cirugía {surgery_id} no encontrada")
+            else:
+                print(f"❌ Error obteniendo trayectoria: {response.status_code}")
+            return None
+        except Exception as e:
+            print(f"❌ Error de red: {e}")
             return None
 
     def send_analysis(self, surgery_id, score, feedback):
-        self.ensure_authenticated()
+        if not self.ensure_authenticated():
+            return False
 
         url = f"{self.base_url}/api/v1/surgeries/{surgery_id}/analysis"
         headers = {
@@ -59,11 +75,15 @@ class JustinaAIClient:
             "feedback": feedback
         }
 
-        response = requests.post(url, json=payload, headers=headers)
-
-        if response.status_code == 204:
-            print("✅ Análisis enviado correctamente")
-            return True
-        else:
-            print("Error enviando análisis:", response.text)
+        print(f"📤 Enviando análisis para cirugía {surgery_id}...")
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=REQUEST_TIMEOUT)
+            if response.status_code == 204:
+                print("✅ Análisis enviado correctamente")
+                return True
+            else:
+                print(f"❌ Error enviando análisis: {response.status_code} - {response.text}")
+                return False
+        except Exception as e:
+            print(f"❌ Error de red al enviar análisis: {e}")
             return False

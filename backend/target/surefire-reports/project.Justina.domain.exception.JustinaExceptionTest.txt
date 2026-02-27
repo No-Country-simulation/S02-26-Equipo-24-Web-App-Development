@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: project.Justina.domain.exception.JustinaExceptionTest
+-------------------------------------------------------------------------------
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.052 s -- in project.Justina.domain.exception.JustinaExceptionTest
