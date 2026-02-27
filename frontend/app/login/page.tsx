@@ -6,8 +6,19 @@ import { Label } from "@/app/components/ui/label";
 import { loginAction } from "./login.actions";
 import Link from "next/link";
 
-export default function Login() {
-    return (
+export default async function Login({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
+  const errorMessage =
+    params.error === "invalid_credentials"
+      ? "Correo o contraseña incorrectos"
+      : null;
+
+  return (
     <div className="flex justify-center items-center bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 p-6 min-h-screen">
       <div className="w-full max-w-md">
         {/* Header */}
@@ -31,6 +42,7 @@ export default function Login() {
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="usuario@ejemplo.com"
                 required
@@ -42,35 +54,46 @@ export default function Login() {
               <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 required
                 className="border-slate-300"
               />
             </div>
-          <Link href="/dashboard">
-            <Button 
-              type="submit" 
+            {errorMessage && (
+              <p className="text-red-600 text-sm">{errorMessage}</p>
+            )}
+            <Button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700 w-full">
-                Iniciar Sesión
+              Iniciar Sesión
             </Button>
-          </Link>
           </form>
-
           <div className="mt-6 text-slate-600 text-sm text-center">
             <p>¿Olvidaste tu contraseña? <button className="text-blue-600 hover:underline">Recuperar</button></p>
+            <p className="mt-2">
+              ¿No tienes cuenta?{" "}
+              <Link href="/register">
+                <button
+                  className="font-medium text-blue-600 hover:underline"
+                >
+                  Registrarse
+                </button>
+              </Link>
+            </p>
           </div>
         </Card>
 
         {/* Back Button */}
         <Link href="/">
-        <Button
-          variant="ghost"
-          className="mt-4 w-full text-slate-600 hover:text-slate-900"
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Volver al inicio
-        </Button>
+          <Button
+            variant="ghost"
+            className="mt-4 w-full text-slate-600 hover:text-slate-900"
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Volver al inicio
+          </Button>
         </Link>
 
         {/* Demo Info */}
@@ -81,5 +104,5 @@ export default function Login() {
         </div>
       </div>
     </div>
-    );   
+  );
 }
