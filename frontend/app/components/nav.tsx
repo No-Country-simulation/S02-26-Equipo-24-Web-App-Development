@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Activity } from "lucide-react";
 import { useUserStore } from "@/app/store/user.store";
+import UserDropdown from "./UserDropdown";
 
 export default function Navbar() {
   const username = useUserStore((s) => s.username);
@@ -18,13 +19,7 @@ export default function Navbar() {
         </div>
         </Link>
         {username ? (
-          <Link href="/dashboard">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-900 text-xl">
-              {username}
-            </span>
-          </div>
-          </Link>
+          <UserDropdown />
         ) : ( <Link href="/login">
           <Button className="bg-blue-600 hover:bg-blue-700">
             Iniciar Sesión
