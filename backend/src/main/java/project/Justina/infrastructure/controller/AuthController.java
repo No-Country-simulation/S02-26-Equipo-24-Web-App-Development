@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -55,10 +56,27 @@ public class AuthController {
                     description = "Credenciales incorrectas"
             )
     })
-    public AuthResponseDTO login(
-            @RequestBody @Valid LoginRequestDTO request
+    public ResponseEntity<?> login(
+            @RequestBody @Valid LoginRequestDTO request,
+            HttpServletResponse response
     ) {
-        return authService.login(request.username(), request.password());
+        AuthResponseDTO authResponse = authService.login(request.username(), request.password());
+        
+
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("jwt-token", authResponse.token());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(86400); // 24 horas
+        cookie.setAttribute("SameSite", "None");
+        
+        response.addCookie(cookie);
+        
+        return ResponseEntity.ok(Map.of(
+            "message", "Login exitoso",
+            "userId", authResponse.userId(),
+            "username", authResponse.username()
+        ));
     }
 
 
