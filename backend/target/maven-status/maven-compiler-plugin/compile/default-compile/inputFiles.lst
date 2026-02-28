@@ -5,6 +5,7 @@ C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\dto\LoginRequestDTO.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\dto\TelemetryDTO.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\dto\TrajectoryDTO.java
+C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\dto\UserResponseDTO.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\exception\AuthException.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\exception\ForbiddenActionException.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\domain\exception\InvalidTelemetryException.java
@@ -36,6 +37,7 @@ C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\security\JwtAuthenticationFilter.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\security\JwtService.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\security\SecurityConfig.java
+C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\websocket\AIWebSocketHandler.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\websocket\HandshakeInterceptorImpl.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\websocket\SimulationWebSocketHandler.java
 C:\Users\ANTHONY\Desktop\No Country\Justina\S02-26-Equipo-24-Web-App-Development\backend\src\main\java\project\Justina\infrastructure\websocket\WebSocketConfig.java
