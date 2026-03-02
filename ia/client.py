@@ -24,7 +24,16 @@ class JustinaAIClient:
                 return False
 
             data = response.json()
-            self.token = data["token"]
+            self.token = response.cookies.get("jwt-token")
+            
+            # Fallback en caso de que aún venga en el JSON
+            if not self.token:
+                self.token = data.get("token")
+                
+            if not self.token:
+                print("❌ No se encontró el token de autenticación en la respuesta")
+                return False
+                
             self.token_expiration = time.time() + (60 * 60 * 24)
             print("✅ Login exitoso")
             return True
