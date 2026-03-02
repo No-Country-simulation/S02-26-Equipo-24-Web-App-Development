@@ -20,8 +20,10 @@ export async function get<T = unknown>(
 
   const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data?.message || "API GET error");
+   if (!res.ok) {
+    return {
+      error: data?.message || "API POST error",
+    };
   }
 
   return data;
@@ -44,7 +46,9 @@ export async function post<T = unknown>(
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data?.message || "API POST error");
+    return {
+      error: data?.message || "API POST error",
+    };
   }
 
   return data;
