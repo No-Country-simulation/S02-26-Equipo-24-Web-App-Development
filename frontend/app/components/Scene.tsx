@@ -7,6 +7,7 @@ import "@babylonjs/loaders";
 import { useSurgeryStore } from "../store/surgeryStore";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
+import { mostrarInstrucciones } from "./Instrucciones";
 
 export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,38 +20,45 @@ export default function BabylonScene() {
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color4(0.8, 0.9, 1, 1);
 
+    // Interfaz de usuario
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-    const coordPanel = new GUI.Rectangle();
-    coordPanel.width = "280px";
-    coordPanel.height = "160px";
-    coordPanel.cornerRadius = 10;
-    coordPanel.color = "black";
-    coordPanel.thickness = 2;
-    coordPanel.background = "rgba(245, 187, 187, 0.8)";
-    coordPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    coordPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    coordPanel.paddingRight = "20px";
+    // Panel para mostrar coordenadas y botones
+    const infoPanel = new GUI.Rectangle();
+    infoPanel.width = "280px";
+    infoPanel.height = "240px";
+    infoPanel.cornerRadius = 20;
+    infoPanel.color = "black";
+    infoPanel.thickness = 2;
+    infoPanel.background = "rgba(255, 240, 240, 0.9)";
+    infoPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    infoPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    infoPanel.paddingRight = "20px";
+    infoPanel.top = "200px";
 
-    advancedTexture.addControl(coordPanel);
+    advancedTexture.addControl(infoPanel);
 
+    // StackPanel para organizar el texto
     const stack = new GUI.StackPanel();
     stack.paddingTop = "15px";
     stack.paddingLeft = "15px";
     stack.paddingRight = "15px";
 
-    coordPanel.addControl(stack);
+    infoPanel.addControl(stack);
 
+    // Título del panel
     const title = new GUI.TextBlock();
-    title.text = "Coordenadas del Instrumento:";
+    title.text = "Coordenadas del Instrumento";
     title.color = "black";
     title.fontSize = 16;
     title.height = "30px";
     title.paddingBottom = "10px";
+    title.fontStyle = "bold";
     title.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 
     stack.addControl(title);
 
+    // TextBlocks para coordenadas X, Y, Z
     const textX = new GUI.TextBlock();
     textX.color = "black";
     textX.fontSize = 18;
@@ -72,6 +80,53 @@ export default function BabylonScene() {
     stack.addControl(textX);
     stack.addControl(textY);
     stack.addControl(textZ);
+
+    const spacer = new GUI.Rectangle();
+    spacer.height = "20px";
+    spacer.thickness = 0;
+    stack.addControl(spacer);
+
+    // Botón para iniciar simulación
+    const startButton = GUI.Button.CreateSimpleButton(
+      "startBtn",
+      "INICIAR CIRUGÍA",
+    );
+
+    startButton.width = "200px";
+    startButton.height = "80px";
+    startButton.color = "white";
+    startButton.cornerRadius = 10;
+    startButton.background = "#008000";
+    startButton.fontSize = 16;
+
+    startButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    startButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    startButton.paddingBottom = "40px";
+    startButton.paddingRight = "20px";
+
+    // Botón para terminar simulación
+    const endButton = GUI.Button.CreateSimpleButton(
+      "endBtn",
+      "TERMINAR CIRUGÍA",
+    );
+
+    endButton.width = "200px";
+    endButton.height = "80px";
+    endButton.color = "white";
+    endButton.cornerRadius = 10;
+    endButton.background = "#8B0000";
+    endButton.fontSize = 16;
+
+    endButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    endButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    endButton.paddingBottom = "40px";
+    endButton.paddingRight = "20px";
+
+    stack.addControl(startButton);
+    stack.addControl(endButton);
+    endButton.isVisible = false;
+
+    mostrarInstrucciones();
 
     // Cámara laparoscópica
     const camera = new BABYLON.ArcRotateCamera(
@@ -97,6 +152,8 @@ export default function BabylonScene() {
     let sceneReady = false;
     let instrumentActive = false;
     let arteryCut = false;
+    let simulationStarted = false;
+    let simulationEnded = false;
 
     const cutter = BABYLON.MeshBuilder.CreateBox(
       "cutter",
@@ -172,6 +229,34 @@ export default function BabylonScene() {
         checkCollisions();
       };
 
+      startButton.onPointerUpObservable.add(() => {
+        if (simulationStarted) return;
+
+        simulationStarted = true;
+        simulationEnded = false;
+
+        console.log("Simulación iniciada 🚀");
+
+        setEvent("START"); // 🔥 ENVÍA ENUM AL BACKEND
+
+        startButton.isVisible = false;
+        endButton.isVisible = true;
+      });
+
+      endButton.onPointerUpObservable.add(() => {
+        if (!simulationStarted || simulationEnded) return;
+
+        simulationEnded = true;
+        simulationStarted = false;
+
+        console.log("Simulación terminada ✅");
+
+        setEvent("FINISH"); // 🔥 ENVÍA ENUM AL BACKEND
+
+        startButton.isVisible = true;
+        endButton.isVisible = false;
+      });
+
       scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
           instrumentActive = true;
@@ -218,6 +303,7 @@ export default function BabylonScene() {
     }
 
     function checkCollisions() {
+      if (!simulationStarted) return;
       if (!sceneReady) return;
       if (!instrumentActive) return;
       if (!cutter || !arteryMesh) return;
