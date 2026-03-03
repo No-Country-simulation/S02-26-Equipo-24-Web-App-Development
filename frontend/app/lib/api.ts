@@ -6,23 +6,28 @@ export type ApiResponse<T = unknown> = {
   error?: string;
 };
 
+const defaultOptions: RequestInit = {
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
 export async function get<T = unknown>(
   url: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   const res = await fetch(`${API_URL}${url}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    ...defaultOptions,
     ...options,
   });
 
   const data = await res.json();
 
-   if (!res.ok) {
+  if (!res.ok) {
     return {
-      error: data?.message || "API POST error",
+      error: data?.message || "API GET error",
     };
   }
 
@@ -36,10 +41,8 @@ export async function post<T = unknown>(
 ): Promise<ApiResponse<T>> {
   const res = await fetch(`${API_URL}${url}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(body),
+    ...defaultOptions,
     ...options,
   });
 
