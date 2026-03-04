@@ -1,22 +1,45 @@
+"use client";
+
 import { Activity, ArrowLeft } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { loginAction } from "./login.actions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default async function Login({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const params = await searchParams;
+export default function Login() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const errorMessage =
-    params.error === "invalid_credentials"
-      ? "Correo o contraseña incorrectos"
-      : null;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const username = formData.get("username");
+    const password = formData.get("password");
+
+    const res = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      credentials: "include", 
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!res.ok) {
+      setError("Usuario o contraseña incorrectos");
+      setLoading(false);
+      return;
+    }
+
+    router.push("/dashboard");
+  }
 
   return (
     <div className="flex justify-center items-center bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 p-6 min-h-screen">
@@ -37,14 +60,12 @@ export default async function Login({
 
         {/* Login Card */}
         <Card className="shadow-xl p-8 border-slate-200">
-          <form action={loginAction} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Nombre de usuario</Label>
+              <Label htmlFor="username">Nombre de usuario</Label>
               <Input
                 id="username"
                 name="username"
-                type="username"
-                placeholder="usuario"
                 required
                 className="border-slate-300"
               />
@@ -56,52 +77,29 @@ export default async function Login({
                 id="password"
                 name="password"
                 type="password"
-                placeholder="••••••••"
                 required
                 className="border-slate-300"
               />
             </div>
-            {errorMessage && (
-              <p className="text-red-600 text-sm">{errorMessage}</p>
-            )}
+
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 w-full">
-              Iniciar Sesión
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 w-full"
+            >
+              {loading ? "Ingresando..." : "Iniciar Sesión"}
             </Button>
           </form>
-          <div className="mt-6 text-slate-600 text-sm text-center">
-            <p>¿Olvidaste tu contraseña? <button className="text-blue-600 hover:underline">Recuperar</button></p>
-            <p className="mt-2">
-              ¿No tienes cuenta?{" "}
-              <Link href="/register">
-                <button
-                  className="font-medium text-blue-600 hover:underline"
-                >
-                  Registrarse
-                </button>
-              </Link>
-            </p>
-          </div>
         </Card>
 
-        {/* Back Button */}
         <Link href="/">
-          <Button
-            variant="ghost"
-            className="mt-4 w-full text-slate-600 hover:text-slate-900"
-          >
+          <Button variant="ghost" className="mt-4 w-full">
             <ArrowLeft className="mr-2 size-4" />
             Volver al inicio
           </Button>
         </Link>
-
-        {/* Demo Info */}
-        <div className="bg-blue-50 mt-8 p-4 border border-blue-200 rounded-lg">
-          <p className="text-blue-900 text-sm text-center">
-            <strong>Modo Demostración:</strong> Ingresa cualquier correo y contraseña para acceder
-          </p>
-        </div>
       </div>
     </div>
   );
