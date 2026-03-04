@@ -1,12 +1,12 @@
-"use client";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Activity } from "lucide-react";
-import { useUserStore } from "@/app/store/user.store";
 import UserDropdown from "./UserDropdown";
+import { meAction } from "@/app/lib/actions/me.action";
 
-export default function Navbar() {
-  const username = useUserStore((s) => s.username);
+export default async function Navbar() {
+  const user = await meAction();
+   console.log("USER EN NAVBAR:", user); // 👈 consola del servidor
   return (
     <header className="top-0 z-50 sticky bg-white/80 backdrop-blur-sm border-b">
       <div className="flex justify-between items-center mx-auto px-6 py-4 container">
@@ -18,8 +18,8 @@ export default function Navbar() {
           </span>
         </div>
         </Link>
-        {username ? (
-          <UserDropdown />
+          {user ? (
+        <UserDropdown initialUser={user} />
         ) : ( <Link href="/login">
           <Button className="bg-blue-600 hover:bg-blue-700">
             Iniciar Sesión

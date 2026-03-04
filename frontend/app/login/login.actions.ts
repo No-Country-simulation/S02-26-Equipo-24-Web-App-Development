@@ -15,10 +15,10 @@ export async function loginAction(formData: FormData) {
     username,
     password,
   });
-
+  console.log(res);
   if (res.error) {
     redirect("/login?error=invalid_credentials");
   }
 
-  redirect(`/dashboard?username=${username}`);
+  redirect(`/dashboard`);
 }

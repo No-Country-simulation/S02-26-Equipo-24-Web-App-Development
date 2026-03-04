@@ -1,9 +1,22 @@
+import { UUID } from "crypto";
 import { API_URL } from "./config";
+import { cookies } from "next/headers";
 
 export type ApiResponse<T = unknown> = {
   message?: string;
   data?: T;
   error?: string;
+  status?: number;
+  headers?: Headers;
+};
+export type ApigetResponse<T = unknown> = {
+ id : UUID;
+ username : string;
+ role : string;
+};
+
+export type ApiError = {
+  error: string;
 };
 
 const defaultOptions: RequestInit = {
@@ -13,14 +26,9 @@ const defaultOptions: RequestInit = {
   },
 };
 
-export async function get<T = unknown>(
-  url: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+export async function get(url: string) {
   const res = await fetch(`${API_URL}${url}`, {
-    method: "GET",
     ...defaultOptions,
-    ...options,
   });
 
   const data = await res.json();

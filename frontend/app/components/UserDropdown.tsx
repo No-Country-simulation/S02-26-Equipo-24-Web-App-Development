@@ -1,64 +1,48 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useUserStore } from "@/app/store/user.store";
 
-export default function UserDropdown() {
+type Props = {
+  initialUser: {
+    username: string;
+  };
+};
+
+export default function UserDropdown({ initialUser }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const username = useUserStore((s) => s.username);
+  const setUser = useUserStore((s) => s.setUser);
   const clearUser = useUserStore((s) => s.clearUser);
+  const username = useUserStore((s) => s.username);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar dropdown cuando se hace clic fuera
+  // 🔥 hidratar store una sola vez
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+    if (initialUser) {
+      setUser(initialUser);
     }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [initialUser, setUser]);
 
   const handleLogout = () => {
     clearUser();
-    setIsOpen(false);
-    router.push("/");
+    router.push("/login");
   };
 
   if (!username) return null;
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:bg-slate-100 px-4 py-2 rounded-lg transition-colors"
-      >
-        <span className="font-semibold text-slate-900">{username}</span>
-        <ChevronDown
-          className={`size-5 text-slate-600 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
+    <div ref={dropdownRef}>
+      <button onClick={() => setIsOpen(!isOpen)}>
+        {username} <ChevronDown />
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
-        <div className="right-0 z-50 absolute bg-white shadow-lg mt-2 py-1 border border-slate-200 rounded-lg w-48">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 hover:bg-red-50 px-4 py-2.5 w-full text-slate-900 text-left transition-colors"
-          >
-            <LogOut className="size-4 text-red-600" />
-            <span className="font-medium text-sm">Cerrar Sesión</span>
-          </button>
-        </div>
+        <button onClick={handleLogout}>
+          <LogOut /> Cerrar sesión
+        </button>
       )}
     </div>
   );
