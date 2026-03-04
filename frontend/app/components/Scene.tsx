@@ -16,7 +16,7 @@ export default function BabylonScene() {
 
   // Variables para conexión con websocket
   const websocketRef = useRef<WebSocket | null>(null);
-  let currentSurgeryId = null;
+  let currentSurgeryId: string | null = null;
 
   const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
 
@@ -96,19 +96,22 @@ export default function BabylonScene() {
       console.log("📨 Mensaje del servidor recibido:", message);
 
       if (message.status === "SAVED") {
-        currentSurgeryId = message.surgeryId;
+        const surgeryId: string = message.surgeryId;
+        currentSurgeryId = surgeryId;
         console.log("💾 ¡Cirugía guardada!");
-        console.log("📋 ID de la cirugía:", currentSurgeryId);
+        console.log("📋 ID de la cirugía:", surgeryId);
 
         // Guardar en cookies con nombre y valor
-        document.cookie = `lastSurgeryId=${currentSurgeryId}; path=/; max-age=86400`; // 24 horas
+        document.cookie = `lastSurgeryId=${surgeryId}; path=/; max-age=86400`; // 24 horas
         console.log(
           "🍪 Cookie de cirugía guardada:",
-          `lastSurgeryId=${currentSurgeryId}`,
+          `lastSurgeryId=${surgeryId}`,
         );
 
         // Consultar trayectoria AHORA que sí tenemos el ID
-        consultarTrayectoria().then(() => {
+        consultarTrayectoria().then((data) => {
+          // Iniciar polling para esperar el análisis de la IA
+          iniciarPollingAnalisis();
           // Cerrar conexión WebSocket después de terminar todo
           websocketRef.current?.close();
         });
@@ -176,29 +179,60 @@ export default function BabylonScene() {
 
     console.log("✅ Token obtenido para consultar trayectoria");
 
-    const response = await fetch(
-      `${API_URL}/api/v1/surgeries/${surgeryId}/trajectory`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      const response = await fetch(
+        `${API_URL}/api/v1/surgeries/${surgeryId}/trajectory`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("📊 Trayectoria obtenida:", data);
-      console.log("📍 Total de movimientos:", data.movements?.length || 0);
-      console.log("⏱️ Inicio:", data.startTime);
-      console.log("⏱️ Fin:", data.endTime);
-      return data;
-    } else {
-      console.error(
-        "❌ Error al obtener trayectoria:",
-        response.status,
-        response.statusText,
       );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📊 Datos de cirugía obtenidos:", data);
+        return data;
+      } else {
+        console.error("❌ Error al obtener trayectoria:", response.status);
+        return null;
+      }
+    } catch (error) {
+      console.error("❌ Error de red al consultar trayectoria:", error);
       return null;
+    }
+  }
+
+  let pollingInterval: NodeJS.Timeout | null = null;
+
+  function iniciarPollingAnalisis() {
+    console.log("⏳ Iniciando polling para análisis de IA...");
+
+    // Limpiar intervalo previo si existe
+    if (pollingInterval) clearInterval(pollingInterval);
+
+    pollingInterval = setInterval(async () => {
+      const data = await consultarTrayectoria();
+
+      if (data && data.score !== null && data.feedback !== null) {
+        console.log("🎯 ¡Análisis de IA recibido!");
+        mostrarAnalisisUI(data.score, data.feedback);
+        if (pollingInterval) clearInterval(pollingInterval);
+      } else {
+        console.log("Waiting for AI analysis...");
+      }
+    }, 5000); // Cada 5 segundos
+  }
+
+  let analysisPanel: GUI.Rectangle | null = null;
+  let scoreText: GUI.TextBlock | null = null;
+  let feedbackText: GUI.TextBlock | null = null;
+
+  function mostrarAnalisisUI(score: number, feedback: string) {
+    if (analysisPanel && scoreText && feedbackText) {
+      scoreText.text = `PUNTUACIÓN IA: ${score.toFixed(1)}/100`;
+      feedbackText.text = `FEEDBACK: ${feedback}`;
+      analysisPanel.isVisible = true;
     }
   }
 
@@ -269,6 +303,63 @@ export default function BabylonScene() {
     stack.addControl(textX);
     stack.addControl(textY);
     stack.addControl(textZ);
+
+    // PANEL DE ANÁLISIS IA (Inicia oculto)
+    analysisPanel = new GUI.Rectangle();
+    analysisPanel.width = "400px";
+    analysisPanel.height = "300px";
+    analysisPanel.cornerRadius = 20;
+    analysisPanel.color = "white";
+    analysisPanel.background = "rgba(0, 0, 50, 0.85)";
+    analysisPanel.thickness = 2;
+    analysisPanel.isVisible = false;
+    analysisPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    analysisPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+    analysisPanel.left = "20px";
+    advancedTexture.addControl(analysisPanel);
+
+    const analysisStack = new GUI.StackPanel();
+    analysisStack.paddingTop = "20px";
+    analysisStack.paddingLeft = "20px";
+    analysisStack.paddingRight = "20px";
+    analysisPanel.addControl(analysisStack);
+
+    const analysisTitle = new GUI.TextBlock();
+    analysisTitle.text = "RESULTADO DE IA JUSTINA";
+    analysisTitle.color = "#00BFFF";
+    analysisTitle.fontSize = 20;
+    analysisTitle.height = "40px";
+    analysisTitle.fontStyle = "bold";
+    analysisStack.addControl(analysisTitle);
+
+    scoreText = new GUI.TextBlock();
+    scoreText.text = "PUNTUACIÓN IA: --/100";
+    scoreText.color = "white";
+    scoreText.fontSize = 18;
+    scoreText.height = "40px";
+    analysisStack.addControl(scoreText);
+
+    feedbackText = new GUI.TextBlock();
+    feedbackText.text = "Esperando análisis...";
+    feedbackText.color = "white";
+    feedbackText.fontSize = 14;
+    feedbackText.height = "160px";
+    feedbackText.textWrapping = true;
+    feedbackText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    analysisStack.addControl(feedbackText);
+
+    const closeAnalysisBtn = GUI.Button.CreateSimpleButton(
+      "closeAnalysis",
+      "CERRAR",
+    );
+    closeAnalysisBtn.width = "100px";
+    closeAnalysisBtn.height = "40px";
+    closeAnalysisBtn.color = "white";
+    closeAnalysisBtn.background = "#444";
+    closeAnalysisBtn.onPointerUpObservable.add(() => {
+      analysisPanel!.isVisible = false;
+    });
+    analysisStack.addControl(closeAnalysisBtn);
 
     const spacer = new GUI.Rectangle();
     spacer.height = "20px";

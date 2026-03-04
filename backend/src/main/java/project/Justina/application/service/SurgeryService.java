@@ -17,22 +17,24 @@ public class SurgeryService {
 
     private final SurgeryRepository surgeryRepository;
 
-    public TrajectoryDTO getSurgeryTrajectory(UUID surgeryId, UUID authenticatedSurgeonId) {
+    public TrajectoryDTO getSurgeryTrajectory(UUID surgeryId, UUID authenticatedSurgeonId, String role) {
         // Buscar la cirugía o lanzar error 404 si no existe
         SurgerySession session = surgeryRepository.findById(surgeryId)
                 .orElseThrow(() -> new SurgeryNotFoundException("La cirugía con id " + surgeryId + " no existe."));
 
-        // 2. VALIDACIÓN REAL: Comparar UUIDs
-        if (!session.getSurgeonId().equals(authenticatedSurgeonId)) {
+        // 2. VALIDACIÓN REAL: Comparar UUIDs (Permitir el paso si es la IA)
+        if (!session.getSurgeonId().equals(authenticatedSurgeonId) && !"ROLE_AI".equals(role)) {
             throw new ForbiddenActionException("No tienes permiso para acceder a esta cirugía.");
         }
 
-        // Mapear al DTO "limpio" para la IA
+        // Mapear al DTO "limpio" para la IA y el Frontend
         return new TrajectoryDTO(
                 session.getId(),
                 session.getStartTime(),
                 session.getEndTime(),
-                session.getTrajectory()
+                session.getTrajectory(),
+                session.getScore(),
+                session.getFeedback()
         );
     }
 

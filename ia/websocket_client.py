@@ -8,10 +8,15 @@ import json
 import threading
 import time
 import os  
+import sys
+import functools
 from flask import Flask  
 from client import JustinaAIClient
 from analysis_pipeline import run_pipeline
 from config import BASE_URL
+
+# Forzar a Python a no bufferear los prints (revelará los logs ocultos en Render)
+print = functools.partial(print, flush=True)
 
 # ========================================================
 # 🚀 BYPASS PARA EL PLAN GRATUITO DE RENDER
@@ -48,8 +53,12 @@ class AIWebSocketClient:
     def on_message(self, ws, message):
         """Callback cuando llega un mensaje del backend"""
         try:
+            print(f"\n{'='*60}")
+            print(f"📡 MENSAJE RAW DEL SERVIDOR WEBSOCKET:")
+            print(f"{message}")
+            print(f"{'='*60}\n")
+            
             data = json.loads(message)
-            print(f"\n📨 Mensaje recibido: {data}")
             
             # Verificar si es notificación de nueva cirugía
             if data.get("event") == "NEW_SURGERY":

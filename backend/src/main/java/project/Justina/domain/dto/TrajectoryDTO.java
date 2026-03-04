@@ -10,5 +10,7 @@ public record TrajectoryDTO(
         UUID surgeryId,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        List<Movement> movements
+        List<Movement> movements,
+        Double score,
+        String feedback
 ) {}
