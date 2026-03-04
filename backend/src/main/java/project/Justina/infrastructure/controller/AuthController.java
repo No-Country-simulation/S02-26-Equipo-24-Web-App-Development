@@ -75,7 +75,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
             "message", "Login exitoso",
             "userId", authResponse.userId(),
-            "username", authResponse.username()
+            "username", authResponse.username(),
+            "token", authResponse.token()
         ));
     }
 
