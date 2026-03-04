@@ -13,6 +13,112 @@ export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const setEvent = useSurgeryStore((s) => s.setEvent);
 
+  // Variables para conexión con websocket
+  const websocketRef = useRef<WebSocket | null>(null);
+  let currentSurgeryId = null;
+
+  function getTokenFromCookies() {
+    console.log("🔍 Iniciando búsqueda del token en cookies...");
+    console.log("🍪 document.cookie:", document.cookie);
+
+    const cookies = document.cookie.split("; ");
+    console.log("🍪 Cookies parseadas:", cookies);
+    console.log("📊 Total de cookies:", cookies.length);
+
+    for (const cookie of cookies) {
+      const [name, value] = cookie.split("=");
+      console.log(`  ➡️ Cookie - Nombre: "${name}", Valor: "${value}"`);
+
+      if (name === "jwt-token") {
+        console.log("✅ ¡Token encontrado!");
+        console.log("🔐 Token JWT:", value);
+        return value;
+      }
+    }
+
+    console.error("❌ Token JWT no encontrado en las cookies");
+    console.warn("⚠️ Cookies disponibles:", document.cookie || "Sin cookies");
+    return null;
+  }
+
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
+
+  function conectarWebSocket() {
+    console.log("🔌 Iniciando conexión WebSocket...");
+    const token = getTokenFromCookies();
+
+    if (!token) {
+      console.error(
+        "❌ No hay token disponible - No se puede conectar al WebSocket",
+      );
+      return;
+    }
+
+    console.log("✅ Token obtenido correctamente");
+    console.log(`📍 URL WebSocket: ${WS_URL}/ws/simulation?token=${token}`);
+
+    websocketRef.current = new WebSocket(
+      `${WS_URL}/ws/simulation?token=${token}`,
+    );
+
+    websocketRef.current.onopen = () => {
+      console.log("✅ WebSocket conectado exitosamente");
+      console.log("🟢 Estado WebSocket:", websocketRef.current?.readyState);
+
+      console.log("📤 Enviando evento START al servidor...");
+      enviarEvento(0, 0, 0, "START");
+    };
+
+    websocketRef.current.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.log("📨 Mensaje del servidor recibido:", message);
+
+      if (message.status === "SAVED") {
+        currentSurgeryId = message.surgeryId;
+        console.log("💾 ¡Cirugía guardada!");
+        console.log("📋 ID de la cirugía:", currentSurgeryId);
+
+        document.cookie = `lastSurgeryId=${currentSurgeryId}; path=/`;
+        console.log("🍪 Cookie de cirugía guardada");
+        // localStorage.setItem("lastSurgeryId", currentSurgeryId);
+      }
+    };
+
+    websocketRef.current.onerror = (error) => {
+      console.error("❌ Error en WebSocket:", error);
+      console.error("📊 Tipo de error:", error.type);
+    };
+
+    websocketRef.current.onclose = () => {
+      console.log("🔌 WebSocket desconectado");
+      console.log("🟠 Estado WebSocket:", websocketRef.current?.readyState);
+    };
+  }
+
+  function enviarEvento(x: any, y: any, z: any, evento = "NONE") {
+    if (
+      !websocketRef.current ||
+      websocketRef.current.readyState !== WebSocket.OPEN
+    ) {
+      console.warn(
+        "⚠️ WebSocket no está abierto. Estado:",
+        websocketRef.current?.readyState,
+        "- Evento no enviado:",
+        evento,
+      );
+      return;
+    }
+
+    const telemetry = {
+      coordinates: [x, y, z],
+      event: evento,
+      timestamp: Date.now(),
+    };
+
+    console.log("📤 Enviando evento:", evento, "- Telemetría:", telemetry);
+    websocketRef.current.send(JSON.stringify(telemetry));
+  }
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -235,9 +341,13 @@ export default function BabylonScene() {
         simulationStarted = true;
         simulationEnded = false;
 
-        console.log("Simulación iniciada 🚀");
+        console.log("🚀 Simulación iniciada");
+        console.log("🔑 Intentando obtener token para WebSocket...");
 
         setEvent("START"); // 🔥 ENVÍA ENUM AL BACKEND
+
+        // Iniciar conexión WebSocket
+        conectarWebSocket();
 
         startButton.isVisible = false;
         endButton.isVisible = true;
@@ -252,6 +362,15 @@ export default function BabylonScene() {
         console.log("Simulación terminada ✅");
 
         setEvent("FINISH"); // 🔥 ENVÍA ENUM AL BACKEND
+
+        // Cerrar conexión WebSocket
+        enviarEvento(
+          scalpelMesh?.position.x,
+          scalpelMesh?.position.y,
+          scalpelMesh?.position.z,
+          "FINISH",
+        );
+        websocketRef.current?.close();
 
         startButton.isVisible = true;
         endButton.isVisible = false;
@@ -316,6 +435,12 @@ export default function BabylonScene() {
         mat.diffuseColor = BABYLON.Color3.Red();
         arteryMesh.material = mat;
 
+        enviarEvento(
+          scalpelMesh?.position.x,
+          scalpelMesh?.position.y,
+          scalpelMesh?.position.z,
+          "HEMORRHAGE",
+        );
         console.log("Arteria cortada 🔪");
         setEvent("HEMORRHAGE");
       }
@@ -327,6 +452,12 @@ export default function BabylonScene() {
           tumorFragments.splice(index, 1);
 
           console.log("Fragmento removido 🧠");
+          enviarEvento(
+            scalpelMesh?.position.x,
+            scalpelMesh?.position.y,
+            scalpelMesh?.position.z,
+            "TUMOR_TOUCH",
+          );
           setEvent("TUMOR_TOUCH");
 
           if (tumorFragments.length === 0) {

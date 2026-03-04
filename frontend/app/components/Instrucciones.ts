@@ -1,5 +1,6 @@
 import * as GUI from "@babylonjs/gui";
-
+const API_URL = 'http://localhost:8080';
+const WS_URL = 'ws://localhost:8080';
 export function mostrarInstrucciones() {
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 

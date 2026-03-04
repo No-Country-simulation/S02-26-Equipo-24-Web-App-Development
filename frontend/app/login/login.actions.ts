@@ -16,6 +16,8 @@ export async function loginAction(formData: FormData) {
     password,
   });
 
+  console.log("Login response:", res);
+
   if (res.error) {
     redirect("/login?error=invalid_credentials");
   }
