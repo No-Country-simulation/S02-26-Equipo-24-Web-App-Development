@@ -27,12 +27,14 @@ public class SurgeryService {
             throw new ForbiddenActionException("No tienes permiso para acceder a esta cirugía.");
         }
 
-        // Mapear al DTO "limpio" para la IA
+        // Mapear al DTO "limpio" para la IA y el Frontend
         return new TrajectoryDTO(
                 session.getId(),
                 session.getStartTime(),
                 session.getEndTime(),
-                session.getTrajectory()
+                session.getTrajectory(),
+                session.getScore(),
+                session.getFeedback()
         );
     }
 
