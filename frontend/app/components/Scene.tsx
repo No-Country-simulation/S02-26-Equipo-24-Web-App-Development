@@ -107,6 +107,12 @@ export default function BabylonScene() {
           "🍪 Cookie de cirugía guardada:",
           `lastSurgeryId=${currentSurgeryId}`,
         );
+
+        // Consultar trayectoria AHORA que sí tenemos el ID
+        consultarTrayectoria(currentSurgeryId).then(() => {
+          // Cerrar conexión WebSocket después de terminar todo
+          websocketRef.current?.close();
+        });
       }
     };
 
@@ -431,17 +437,9 @@ export default function BabylonScene() {
           scalpelMesh?.position.z,
           "FINISH",
         );
-        websocketRef.current?.close();
-
-        // Consultar trayectoria con el surgeryId de las cookies
-        const surgeryId = getSurgeryIdFromCookies();
-        if (surgeryId) {
-          consultarTrayectoria(surgeryId);
-        } else {
-          console.error(
-            "❌ No se puede consultar trayectoria: surgeryId no encontrado en cookies",
-          );
-        }
+        // El cierre real de la conexión y la consulta de la trayectoria 
+        // ahora ocurren dentro del websocketRef.current.onmessage 
+        // una vez recibimos el mensaje de status === "SAVED"
 
         startButton.isVisible = true;
         endButton.isVisible = false;
