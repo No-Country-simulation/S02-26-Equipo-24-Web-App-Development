@@ -45,6 +45,6 @@ public class SurgerySessionEntity {
     @Column()
     private Double score;
 
-    @Column()
+    @Column(columnDefinition = "TEXT")
     private String feedback;
 }
