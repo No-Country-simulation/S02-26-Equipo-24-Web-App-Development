@@ -28,7 +28,7 @@ export async function loginAction(formData: FormData) {
     (await cookies()).set({
       name: "jwt-token",
       value: responseData.token,
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
