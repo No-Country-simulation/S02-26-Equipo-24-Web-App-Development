@@ -78,7 +78,8 @@ class SurgeryServiceTest {
         when(surgeryRepository.findById(testSurgeryId)).thenReturn(Optional.of(testSurgerySession));
 
         // When
-        TrajectoryDTO result = surgeryService.getSurgeryTrajectory(testSurgeryId, testSurgeonId);
+
+        TrajectoryDTO result = surgeryService.getSurgeryTrajectory(testSurgeryId, testSurgeonId, "ROLE_AI");
 
         // Then
         assertNotNull(result);
@@ -99,7 +100,7 @@ class SurgeryServiceTest {
         // When & Then
         ForbiddenActionException exception = assertThrows(
                 ForbiddenActionException.class,
-                () -> surgeryService.getSurgeryTrajectory(testSurgeryId, differentSurgeonId)
+                () -> surgeryService.getSurgeryTrajectory(testSurgeryId, differentSurgeonId, "ROLE_AI")
         );
 
         assertEquals("No tienes permiso para acceder a esta cirugía.", exception.getMessage());
@@ -117,7 +118,7 @@ class SurgeryServiceTest {
         // When & Then
         SurgeryNotFoundException exception = assertThrows(
                 SurgeryNotFoundException.class,
-                () -> surgeryService.getSurgeryTrajectory(nonExistentSurgeryId, testSurgeonId)
+                () -> surgeryService.getSurgeryTrajectory(nonExistentSurgeryId, testSurgeonId, "ROLE_AI")
         );
 
         assertEquals("La cirugía con id " + nonExistentSurgeryId + " no existe.", exception.getMessage());
