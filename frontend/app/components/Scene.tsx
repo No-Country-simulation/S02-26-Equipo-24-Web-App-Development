@@ -19,7 +19,6 @@ export default function BabylonScene() {
   let currentSurgeryId = null;
 
   const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   function getTokenFromCookies() {
     console.log("🔍 Iniciando búsqueda del token en cookies...");
@@ -109,7 +108,7 @@ export default function BabylonScene() {
         );
 
         // Consultar trayectoria AHORA que sí tenemos el ID
-        consultarTrayectoria(currentSurgeryId).then(() => {
+        consultarTrayectoria().then(() => {
           // Cerrar conexión WebSocket después de terminar todo
           websocketRef.current?.close();
         });
@@ -151,8 +150,20 @@ export default function BabylonScene() {
     websocketRef.current.send(JSON.stringify(telemetry));
   }
 
-  async function consultarTrayectoria(surgeryId: string) {
-    console.log("🔍 Consultando trayectoria para surgeryId:", surgeryId);
+  async function consultarTrayectoria() {
+    console.log("🔍 Consultando trayectoria...");
+
+    // Obtener surgeryId de las cookies
+    const surgeryId = getSurgeryIdFromCookies();
+
+    if (!surgeryId) {
+      console.error(
+        "❌ No se puede consultar trayectoria: surgeryId no encontrado en cookies",
+      );
+      return null;
+    }
+
+    console.log("✅ SurgeryId obtenido de cookies:", surgeryId);
 
     const token = getTokenFromCookies();
 
@@ -177,12 +188,17 @@ export default function BabylonScene() {
     if (response.ok) {
       const data = await response.json();
       console.log("📊 Trayectoria obtenida:", data);
-      console.log("📍 Total de movimientos:", data.movements.length);
+      console.log("📍 Total de movimientos:", data.movements?.length || 0);
       console.log("⏱️ Inicio:", data.startTime);
       console.log("⏱️ Fin:", data.endTime);
       return data;
     } else {
-      console.error("❌ Error al obtener trayectoria:", response.status);
+      console.error(
+        "❌ Error al obtener trayectoria:",
+        response.status,
+        response.statusText,
+      );
+      return null;
     }
   }
 
@@ -437,8 +453,8 @@ export default function BabylonScene() {
           scalpelMesh?.position.z,
           "FINISH",
         );
-        // El cierre real de la conexión y la consulta de la trayectoria 
-        // ahora ocurren dentro del websocketRef.current.onmessage 
+        // El cierre real de la conexión y la consulta de la trayectoria
+        // ahora ocurren dentro del websocketRef.current.onmessage
         // una vez recibimos el mensaje de status === "SAVED"
 
         startButton.isVisible = true;
