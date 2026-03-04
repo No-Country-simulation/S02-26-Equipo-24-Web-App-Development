@@ -29,14 +29,15 @@ public class SurgeryController {
     @Operation(summary = "Obtener trayectoria para IA")
     public ResponseEntity<TrajectoryDTO> getTrajectory(@PathVariable UUID id) {
 
-        // Extraemos el ID del cirujano del contexto de seguridad (JWT)
+        // Extraemos el ID del cirujano y su rol del contexto de seguridad (JWT)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         // Cambiamos UserPrincipal por UserEntity que es lo que tienes
         UserEntity userDetails = (UserEntity) auth.getPrincipal();
         UUID authenticatedId = userDetails.getId();
+        String role = userDetails.getRole();
 
-        TrajectoryDTO trajectory = surgeryService.getSurgeryTrajectory(id, authenticatedId);
+        TrajectoryDTO trajectory = surgeryService.getSurgeryTrajectory(id, authenticatedId, role);
         return ResponseEntity.ok(trajectory);
     }
 
