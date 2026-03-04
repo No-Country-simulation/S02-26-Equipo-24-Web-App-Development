@@ -8,10 +8,15 @@ import json
 import threading
 import time
 import os  
+import sys
+import functools
 from flask import Flask  
 from client import JustinaAIClient
 from analysis_pipeline import run_pipeline
 from config import BASE_URL
+
+# Forzar a Python a no bufferear los prints (revelará los logs ocultos en Render)
+print = functools.partial(print, flush=True)
 
 # ========================================================
 # 🚀 BYPASS PARA EL PLAN GRATUITO DE RENDER
