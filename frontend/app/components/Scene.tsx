@@ -8,6 +8,7 @@ import { useSurgeryStore } from "../store/surgeryStore";
 import Link from "next/link";
 import { Button } from "@/app/components/ui/button";
 import { mostrarInstrucciones } from "./Instrucciones";
+import { API_URL } from "../lib/config";
 
 export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,6 +17,9 @@ export default function BabylonScene() {
   // Variables para conexión con websocket
   const websocketRef = useRef<WebSocket | null>(null);
   let currentSurgeryId = null;
+
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   function getTokenFromCookies() {
     console.log("🔍 Iniciando búsqueda del token en cookies...");
@@ -41,7 +45,26 @@ export default function BabylonScene() {
     return null;
   }
 
-  const WS_URL = process.env.NEXT_PUBLIC_WS_URL;
+  function getSurgeryIdFromCookies() {
+    console.log("🔍 Buscando surgeryId en cookies...");
+
+    const cookies = document.cookie.split("; ");
+    console.log("🍪 Cookies disponibles:", cookies);
+
+    for (const cookie of cookies) {
+      const [name, value] = cookie.split("=");
+      console.log(`  ➡️ Cookie - Nombre: "${name}", Valor: "${value}"`);
+
+      if (name === "lastSurgeryId") {
+        console.log("✅ ¡SurgeryId encontrado!");
+        console.log("🆔 SurgeryId:", value);
+        return value;
+      }
+    }
+
+    console.warn("⚠️ SurgeryId no encontrado en las cookies");
+    return null;
+  }
 
   function conectarWebSocket() {
     console.log("🔌 Iniciando conexión WebSocket...");
@@ -78,9 +101,12 @@ export default function BabylonScene() {
         console.log("💾 ¡Cirugía guardada!");
         console.log("📋 ID de la cirugía:", currentSurgeryId);
 
-        document.cookie = `lastSurgeryId=${currentSurgeryId}; path=/`;
-        console.log("🍪 Cookie de cirugía guardada");
-        // localStorage.setItem("lastSurgeryId", currentSurgeryId);
+        // Guardar en cookies con nombre y valor
+        document.cookie = `lastSurgeryId=${currentSurgeryId}; path=/; max-age=86400`; // 24 horas
+        console.log(
+          "🍪 Cookie de cirugía guardada:",
+          `lastSurgeryId=${currentSurgeryId}`,
+        );
       }
     };
 
@@ -117,6 +143,41 @@ export default function BabylonScene() {
 
     console.log("📤 Enviando evento:", evento, "- Telemetría:", telemetry);
     websocketRef.current.send(JSON.stringify(telemetry));
+  }
+
+  async function consultarTrayectoria(surgeryId: string) {
+    console.log("🔍 Consultando trayectoria para surgeryId:", surgeryId);
+
+    const token = getTokenFromCookies();
+
+    if (!token) {
+      console.error(
+        "❌ No se puede consultar trayectoria: token no encontrado",
+      );
+      return null;
+    }
+
+    console.log("✅ Token obtenido para consultar trayectoria");
+
+    const response = await fetch(
+      `${API_URL}/api/v1/surgeries/${surgeryId}/trajectory`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("📊 Trayectoria obtenida:", data);
+      console.log("📍 Total de movimientos:", data.movements.length);
+      console.log("⏱️ Inicio:", data.startTime);
+      console.log("⏱️ Fin:", data.endTime);
+      return data;
+    } else {
+      console.error("❌ Error al obtener trayectoria:", response.status);
+    }
   }
 
   useEffect(() => {
@@ -371,6 +432,16 @@ export default function BabylonScene() {
           "FINISH",
         );
         websocketRef.current?.close();
+
+        // Consultar trayectoria con el surgeryId de las cookies
+        const surgeryId = getSurgeryIdFromCookies();
+        if (surgeryId) {
+          consultarTrayectoria(surgeryId);
+        } else {
+          console.error(
+            "❌ No se puede consultar trayectoria: surgeryId no encontrado en cookies",
+          );
+        }
 
         startButton.isVisible = true;
         endButton.isVisible = false;
