@@ -32,7 +32,7 @@ def test_pipeline_locally():
         
         # Validaciones básicas
         assert 0 <= score <= 100, f"Score fuera de rango: {score}"
-        assert "🚨 ALERTAS CRÍTICAS" in feedback, "Falta sección de alertas"
+        assert "ALERTAS CRÍTICAS" in feedback, "Falta sección de alertas"
         assert "MÉTRICAS DE DESTREZA" in feedback, "Falta sección de métricas"
         
         print("\n✨ ¡Prueba local exitosa!")
