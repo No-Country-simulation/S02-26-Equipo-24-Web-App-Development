@@ -23,14 +23,17 @@ export default function Login() {
     const username = formData.get("username");
     const password = formData.get("password");
 
-    const res = await fetch("http://localhost:3001/auth/login", {
-      method: "POST",
-      credentials: "include", 
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login/`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      }
+    );
 
     if (!res.ok) {
       setError("Usuario o contraseña incorrectos");
@@ -44,7 +47,6 @@ export default function Login() {
   return (
     <div className="flex justify-center items-center bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 p-6 min-h-screen">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="mb-8 text-center">
           <div className="flex justify-center items-center gap-2 mb-4">
             <Activity className="size-10 text-blue-600" />
@@ -58,7 +60,6 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Login Card */}
         <Card className="shadow-xl p-8 border-slate-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
