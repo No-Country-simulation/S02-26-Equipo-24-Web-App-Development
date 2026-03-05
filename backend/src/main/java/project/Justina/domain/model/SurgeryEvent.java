@@ -5,5 +5,7 @@ public enum SurgeryEvent {
     TUMOR_TOUCH,
     HEMORRHAGE,
     START,
-    FINISH
+    FINISH,
+    TUMOR_REMOVAL,
+    KIDNEY_TOUCH
 }

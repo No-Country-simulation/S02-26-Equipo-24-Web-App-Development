@@ -46,7 +46,7 @@ class TelemetryDTOTest {
     void telemetryDTO_ValidCreation_With3DCoordinates() {
         // Given
         double[] coordinates = {1.0, 2.0, 3.0};
-        SurgeryEvent event = SurgeryEvent.TUMOR_TOUCH;
+        SurgeryEvent event = SurgeryEvent.TUMOR_REMOVAL;
         long timestamp = System.currentTimeMillis();
 
         // When

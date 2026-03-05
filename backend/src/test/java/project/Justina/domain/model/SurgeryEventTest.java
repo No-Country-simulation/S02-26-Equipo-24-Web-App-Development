@@ -20,7 +20,9 @@ class SurgeryEventTest {
             SurgeryEvent.TUMOR_TOUCH,
             SurgeryEvent.HEMORRHAGE,
             SurgeryEvent.START,
-            SurgeryEvent.FINISH
+            SurgeryEvent.FINISH,
+            SurgeryEvent.TUMOR_REMOVAL,
+            SurgeryEvent.KIDNEY_TOUCH
         };
 
         // When
@@ -43,6 +45,8 @@ class SurgeryEventTest {
         assertEquals(SurgeryEvent.HEMORRHAGE, events[2]);
         assertEquals(SurgeryEvent.START, events[3]);
         assertEquals(SurgeryEvent.FINISH, events[4]);
+        assertEquals(SurgeryEvent.TUMOR_REMOVAL, events[5]);
+        assertEquals(SurgeryEvent.KIDNEY_TOUCH, events[6]);
     }
 
     @Test
@@ -54,6 +58,8 @@ class SurgeryEventTest {
         assertEquals(SurgeryEvent.HEMORRHAGE, SurgeryEvent.valueOf("HEMORRHAGE"));
         assertEquals(SurgeryEvent.START, SurgeryEvent.valueOf("START"));
         assertEquals(SurgeryEvent.FINISH, SurgeryEvent.valueOf("FINISH"));
+        assertEquals(SurgeryEvent.TUMOR_REMOVAL, SurgeryEvent.valueOf("TUMOR_REMOVAL"));
+        assertEquals(SurgeryEvent.KIDNEY_TOUCH, SurgeryEvent.valueOf("KIDNEY_TOUCH"));
     }
 
     @Test
@@ -88,6 +94,8 @@ class SurgeryEventTest {
         assertEquals("HEMORRHAGE", SurgeryEvent.HEMORRHAGE.name());
         assertEquals("START", SurgeryEvent.START.name());
         assertEquals("FINISH", SurgeryEvent.FINISH.name());
+        assertEquals("TUMOR_REMOVAL", SurgeryEvent.TUMOR_REMOVAL.name());
+        assertEquals("KIDNEY_TOUCH", SurgeryEvent.KIDNEY_TOUCH.name());
     }
 
     @Test
@@ -110,6 +118,8 @@ class SurgeryEventTest {
         assertEquals(2, SurgeryEvent.HEMORRHAGE.ordinal());
         assertEquals(3, SurgeryEvent.START.ordinal());
         assertEquals(4, SurgeryEvent.FINISH.ordinal());
+        assertEquals(5, SurgeryEvent.TUMOR_REMOVAL.ordinal());
+        assertEquals(6, SurgeryEvent.KIDNEY_TOUCH.ordinal());
     }
 
     @Test
@@ -206,6 +216,8 @@ class SurgeryEventTest {
                 case HEMORRHAGE -> "Hemorrhage detected";
                 case START -> "Surgery started";
                 case FINISH -> "Surgery finished";
+                case TUMOR_REMOVAL -> "Tumor removed";
+                case KIDNEY_TOUCH -> "Kidney touched";
             };
             
             assertNotNull(result);

@@ -123,7 +123,7 @@ class SurgerySessionTest {
     void addMovement_AddsMultipleMovements() {
         // Given
         SurgerySession session = new SurgerySession(surgeonId);
-        Movement secondMovement = new Movement(new double[]{4.0, 5.0, 6.0}, SurgeryEvent.TUMOR_TOUCH, System.currentTimeMillis());
+        Movement secondMovement = new Movement(new double[]{4.0, 5.0, 6.0}, SurgeryEvent.TUMOR_REMOVAL, System.currentTimeMillis());
 
         // When
         session.addMovement(testMovement);

@@ -236,7 +236,7 @@ class SimulationWebSocketHandlerTest {
         
         TelemetryDTO touchDTO = new TelemetryDTO(
             new double[]{1.5, 2.5, 3.5},
-            SurgeryEvent.TUMOR_TOUCH,
+            SurgeryEvent.TUMOR_REMOVAL,
             System.currentTimeMillis() + 1000
         );
 
