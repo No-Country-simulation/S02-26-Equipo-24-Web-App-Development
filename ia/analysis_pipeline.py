@@ -123,28 +123,28 @@ def _paso5_generar_feedback(m: Dict, b: Dict, r: Dict) -> Tuple[float, str]:
     
     status = "🌟 EXCELENTE" if score >= 90 else "✅ BUENO" if score >= 75 else "⚠️ MEJORABLE" if score >= 60 else "❌ DEFICIENTE"
     
-    feedback = f"""### {status} - Score: {score:.1f}/100
+    feedback = f"""{status} | Score: {score:.1f}/100
 
-#### 🚨 ALERTAS CRÍTICAS
-- Hemorragias: {r["hemorrhages"]} {"(REVISAR TÉCNICA)" if r["hemorrhages"] > 0 else "(Ninguna)"}
-- Contactos Tumor: {r["touches"]}
-- Cuadrantes de Riesgo: {", ".join(r["cuadrantes"]) if r["cuadrantes"] else "Ninguno"}
+ALERTAS CRÍTICAS
+· Hemorragias: {r["hemorrhages"]} {"(REVISAR TÉCNICA)" if r["hemorrhages"] > 0 else "(Ninguna)"}
+· Contactos Tumor: {r["touches"]}
+· Cuadrantes de Riesgo: {", ".join(r["cuadrantes"]) if r["cuadrantes"] else "Ninguno"}
 
-#### 📊 MÉTRICAS DE DESTREZA
-- **Economía de Movimiento:** {m["economia"]:.2f}x (Ideal < 1.2x)
-- **Fluidez (Jerk Promedio):** {m["j_avg"]:.2f} 
-- **Precisión vs Patrón Oro:** {b["precision"]:.1f}%
+MÉTRICAS DE DESTREZA
+· Economía: {m["economia"]:.2f}x (Ideal < 1.2x)
+· Fluidez (Jerk): {m["j_avg"]:.2f} 
+· Precisión: {b["precision"]:.1f}%
 
-#### 📈 ESTADÍSTICAS
-- **Duración Total:** {m["duration"]:.1f}s
-- **Distancia Recorrida:** {m["total_dist"]:.2f} unidades
-- **Velocidad Promedio:** {m["v_avg"]:.2f} u/s
+ESTADÍSTICAS
+· Duración: {m["duration"]:.1f}s
+· Distancia: {m["total_dist"]:.2f}u
+· Velocidad: {m["v_avg"]:.2f}u/s
 
-#### 💡 RECOMENDACIONES
+RECOMENDACIONES
 """
-    if r["hemorrhages"] > 0: feedback += "- Priorizar control vascular en cuadrantes críticos.\n"
-    if m["economia"] > 1.8: feedback += "- Planificar trayectorias más directas para reducir fatiga.\n"
-    if b["precision"] < 70: feedback += "- Mantener mayor estabilidad en la ejecución del path ideal.\n"
-    if score < 80: feedback += "- Incrementar práctica en simulador para mejorar coordinación motora.\n"
+    if r["hemorrhages"] > 0: feedback += "· Priorizar control vascular en cuadrantes críticos.\n"
+    if m["economia"] > 1.8: feedback += "· Planificar trayectorias más directas para reducir fatiga.\n"
+    if b["precision"] < 70: feedback += "· Mantener mayor estabilidad en la ejecución del path ideal.\n"
+    if score < 80: feedback += "· Incrementar práctica en simulador para mejorar coordinación motora.\n"
     
     return score, feedback.strip()
