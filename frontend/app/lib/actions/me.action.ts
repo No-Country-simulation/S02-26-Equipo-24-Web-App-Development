@@ -22,5 +22,5 @@ export async function meAction() {
     return null;
   }
 
-  return res;
+  return res as { username: string };
 }

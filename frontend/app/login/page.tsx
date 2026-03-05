@@ -23,10 +23,12 @@ export default async function Login({
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-8 text-center">
+          <Link href="/">
           <div className="flex justify-center items-center gap-2 mb-4">
             <Activity className="size-10 text-blue-600" />
             <span className="font-bold text-slate-900 text-2xl">RoboSim</span>
           </div>
+          </Link>
           <h1 className="mb-2 font-semibold text-slate-900 text-2xl">
             Acceso a la Plataforma
           </h1>

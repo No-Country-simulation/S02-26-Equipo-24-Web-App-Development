@@ -1,6 +1,5 @@
 import { UUID } from "crypto";
 import { API_URL } from "./config";
-import { cookies } from "next/headers";
 
 export type ApiResponse<T = unknown> = {
   message?: string;
@@ -9,6 +8,7 @@ export type ApiResponse<T = unknown> = {
   status?: number;
   headers?: Headers;
   token?: string;
+  username? : string;
 };
 export type ApigetResponse<T = unknown> = {
  id : UUID;

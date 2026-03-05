@@ -4,9 +4,14 @@ import { Activity } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import { meAction } from "@/app/lib/actions/me.action";
 
+type User = {
+  username: string;
+  // otros campos si tienes
+};
+
 export default async function Navbar() {
+  
   const user = await meAction();
-   console.log("USER EN NAVBAR:", user); // 👈 consola del servidor
   return (
     <header className="top-0 z-50 sticky bg-white/80 backdrop-blur-sm border-b">
       <div className="flex justify-between items-center mx-auto px-6 py-4 container">
