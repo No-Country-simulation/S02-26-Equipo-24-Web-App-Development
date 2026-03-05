@@ -1,6 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 import { post } from "@/app/lib/api";
 
 export async function loginAction(formData: FormData) {
@@ -15,10 +16,21 @@ export async function loginAction(formData: FormData) {
     username,
     password,
   });
-  console.log(res);
-  if (res.error) {
+
+  const token = res?.token;
+
+  if (!token) {
     redirect("/login?error=invalid_credentials");
   }
 
-  redirect(`/dashboard`);
+  const cookieStore = await cookies();
+
+  cookieStore.set("auth_token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/"
+  });
+
+  redirect("/dashboard");
 }

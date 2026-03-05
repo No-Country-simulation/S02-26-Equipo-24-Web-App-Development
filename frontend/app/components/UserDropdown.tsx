@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useUserStore } from "@/app/store/user.store";
+import { logoutAction } from "@/app/lib/actions/logout.action";
 
 type Props = {
   initialUser: {
@@ -16,19 +16,17 @@ export default function UserDropdown({ initialUser }: Props) {
   const setUser = useUserStore((s) => s.setUser);
   const clearUser = useUserStore((s) => s.clearUser);
   const username = useUserStore((s) => s.username);
-  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // 🔥 hidratar store una sola vez
   useEffect(() => {
     if (initialUser) {
       setUser(initialUser);
     }
   }, [initialUser, setUser]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     clearUser();
-    router.push("/login");
+    await logoutAction();
   };
 
   if (!username) return null;

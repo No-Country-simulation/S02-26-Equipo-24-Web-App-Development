@@ -8,6 +8,7 @@ export type ApiResponse<T = unknown> = {
   error?: string;
   status?: number;
   headers?: Headers;
+  token?: string;
 };
 export type ApigetResponse<T = unknown> = {
  id : UUID;
@@ -26,12 +27,22 @@ const defaultOptions: RequestInit = {
   },
 };
 
-export async function get(url: string) {
+export async function get<T = unknown>(
+  url: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
   const res = await fetch(`${API_URL}${url}`, {
+    method: "GET",
     ...defaultOptions,
+    ...options, 
   });
 
-  const data = await res.json();
+  let data: any;
+  try {
+    data = await res.json();
+  } catch (err) {
+    return { error: "Invalid JSON response" };
+  }
 
   if (!res.ok) {
     return {
