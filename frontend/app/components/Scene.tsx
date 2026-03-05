@@ -14,6 +14,14 @@ export default function BabylonScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const setEvent = useSurgeryStore((s) => s.setEvent);
 
+  function reiniciarSimulacion() {
+    if (websocketRef.current) {
+      websocketRef.current.close();
+    }
+
+    window.location.reload();
+  }
+
   // Variables para conexión con websocket
   const websocketRef = useRef<WebSocket | null>(null);
   let currentSurgeryId: string | null = null;
@@ -241,7 +249,28 @@ export default function BabylonScene() {
 
     const engine = new BABYLON.Engine(canvasRef.current, true);
     const scene = new BABYLON.Scene(engine);
-    scene.clearColor = new BABYLON.Color4(0.8, 0.9, 1, 1);
+    const backgroundLayer = new BABYLON.Layer(
+      "backgroundLayer",
+      "/assets/Fondo_Cirujia.png",
+      scene,
+      true,
+    );
+    backgroundLayer.isBackground = true;
+    if (backgroundLayer.texture) {
+      const layerTexture = backgroundLayer.texture as BABYLON.Texture;
+      layerTexture.uScale = 1;
+      layerTexture.vScale = 1;
+      layerTexture.wrapU = BABYLON.Texture.CLAMP_ADDRESSMODE;
+      layerTexture.wrapV = BABYLON.Texture.CLAMP_ADDRESSMODE;
+    }
+
+    // ajustar tamaño del fondo (escala de la textura)
+    // uScale y vScale controlan la repetición/escala horizontal/vertical
+    if (backgroundLayer.texture) {
+      const layerTexture = backgroundLayer.texture as BABYLON.Texture;
+      layerTexture.uScale = 0.7;
+      layerTexture.vScale = 0.9;
+    }
 
     // Interfaz de usuario
     const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -306,59 +335,89 @@ export default function BabylonScene() {
 
     // PANEL DE ANÁLISIS IA (Inicia oculto)
     analysisPanel = new GUI.Rectangle();
-    analysisPanel.width = "400px";
-    analysisPanel.height = "300px";
+    analysisPanel.width = "350px";
+    analysisPanel.height = "520px";
     analysisPanel.cornerRadius = 20;
-    analysisPanel.color = "white";
-    analysisPanel.background = "rgba(0, 0, 50, 0.85)";
+    analysisPanel.color = "#00d4ff";
+    analysisPanel.background = "rgba(10,20,30,0.9)";
     analysisPanel.thickness = 2;
     analysisPanel.isVisible = false;
+
     analysisPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     analysisPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
     analysisPanel.left = "20px";
+
     advancedTexture.addControl(analysisPanel);
 
     const analysisStack = new GUI.StackPanel();
-    analysisStack.paddingTop = "20px";
-    analysisStack.paddingLeft = "20px";
-    analysisStack.paddingRight = "20px";
+    analysisStack.paddingTop = "15px";
+    analysisStack.paddingLeft = "15px";
+    analysisStack.paddingRight = "15px";
+    analysisStack.spacing = 10;
+
     analysisPanel.addControl(analysisStack);
 
     const analysisTitle = new GUI.TextBlock();
-    analysisTitle.text = "RESULTADO DE IA JUSTINA";
-    analysisTitle.color = "#00BFFF";
-    analysisTitle.fontSize = 20;
+    analysisTitle.text = "ANÁLISIS DE IA";
+    analysisTitle.color = "#00eaff";
+    analysisTitle.fontSize = 22;
     analysisTitle.height = "40px";
-    analysisTitle.fontStyle = "bold";
+    analysisTitle.fontWeight = "bold";
+
     analysisStack.addControl(analysisTitle);
 
     scoreText = new GUI.TextBlock();
     scoreText.text = "PUNTUACIÓN IA: --/100";
-    scoreText.color = "white";
-    scoreText.fontSize = 18;
+    scoreText.color = "#7CFFB2";
+    scoreText.fontSize = 20;
     scoreText.height = "40px";
+
     analysisStack.addControl(scoreText);
+
+    const scrollViewer = new GUI.ScrollViewer();
+    scrollViewer.height = "340px";
+    scrollViewer.thickness = 0;
+    scrollViewer.barSize = 10;
+    scrollViewer.barColor = "#00d4ff";
+    scrollViewer.background = "rgba(255,255,255,0.03)";
+    scrollViewer.forceVerticalBar = true;
+
+    analysisStack.addControl(scrollViewer);
+
+    const feedbackContainer = new GUI.StackPanel();
+    feedbackContainer.width = "100%";
+    feedbackContainer.isVertical = true;
+
+    scrollViewer.addControl(feedbackContainer);
 
     feedbackText = new GUI.TextBlock();
     feedbackText.text = "Esperando análisis...";
-    feedbackText.color = "white";
+    feedbackText.color = "#ffffff";
     feedbackText.fontSize = 14;
-    feedbackText.height = "160px";
     feedbackText.textWrapping = true;
-    feedbackText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-    analysisStack.addControl(feedbackText);
+
+    feedbackText.width = "100%";
+    feedbackText.resizeToFit = true;
+    feedbackText.textHorizontalAlignment =
+      GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+    feedbackContainer.addControl(feedbackText);
 
     const closeAnalysisBtn = GUI.Button.CreateSimpleButton(
       "closeAnalysis",
       "CERRAR",
     );
-    closeAnalysisBtn.width = "100px";
+
+    closeAnalysisBtn.width = "120px";
     closeAnalysisBtn.height = "40px";
     closeAnalysisBtn.color = "white";
-    closeAnalysisBtn.background = "#444";
+    closeAnalysisBtn.cornerRadius = 10;
+    closeAnalysisBtn.background = "#00a8cc";
+
     closeAnalysisBtn.onPointerUpObservable.add(() => {
-      analysisPanel!.isVisible = false;
+      analysisPanel.isVisible = false;
     });
+
     analysisStack.addControl(closeAnalysisBtn);
 
     const spacer = new GUI.Rectangle();
@@ -419,8 +478,10 @@ export default function BabylonScene() {
     );
     camera.attachControl(canvasRef.current, true);
 
+    camera.wheelPrecision = 100;
     camera.lowerRadiusLimit = 6;
     camera.upperRadiusLimit = 20;
+    camera.inertia = 0.8;
 
     // Luz quirúrgica
     new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
@@ -514,6 +575,8 @@ export default function BabylonScene() {
 
         simulationStarted = true;
         simulationEnded = false;
+        camera.panningSensibility = 0;
+        camera.detachControl();
 
         console.log("🚀 Simulación iniciada");
         console.log("🔑 Intentando obtener token para WebSocket...");
@@ -532,6 +595,8 @@ export default function BabylonScene() {
 
         simulationEnded = true;
         simulationStarted = false;
+        camera.panningSensibility = 0;
+        camera.detachControl();
 
         console.log("Simulación terminada ✅");
 
@@ -559,11 +624,6 @@ export default function BabylonScene() {
 
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
           instrumentActive = false;
-        }
-
-        if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERWHEEL) {
-          const wheelEvent = pointerInfo.event as WheelEvent;
-          depth += wheelEvent.deltaY * 0.01;
         }
       });
 
@@ -653,16 +713,35 @@ export default function BabylonScene() {
     };
   }, [setEvent]);
   return (
-    <div>
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100vh" }} />
-      <Link href={"/"}>
+    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      <canvas
+        ref={canvasRef}
+        style={{ width: "100%", height: "100vh", display: "block" }}
+      />
+
+      {/* Contenedor de botones */}
+      <div className="absolute top-6 left-6 z-50 flex gap-3">
+        {/* Botón volver */}
+        <Link href="/">
+          <Button
+            variant="outline"
+            className="bg-white/90 backdrop-blur-md 
+                     text-slate-700 hover:text-black
+                     shadow-lg rounded-xl"
+          >
+            ← Volver
+          </Button>
+        </Link>
+
+        {/* Botón reiniciar */}
         <Button
-          variant="outline"
-          className="mt-4 w-full text-slate-600 hover:text-slate-900"
+          onClick={reiniciarSimulacion}
+          className="bg-blue-600 hover:bg-blue-700 
+                   text-white shadow-lg rounded-xl"
         >
-          Volver al Inicio
+          ⟳ Reiniciar
         </Button>
-      </Link>
+      </div>
     </div>
   );
 }
