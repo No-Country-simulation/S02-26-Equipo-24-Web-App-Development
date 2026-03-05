@@ -415,7 +415,9 @@ export default function BabylonScene() {
     closeAnalysisBtn.background = "#00a8cc";
 
     closeAnalysisBtn.onPointerUpObservable.add(() => {
-      analysisPanel.isVisible = false;
+      if (analysisPanel) {
+        analysisPanel.isVisible = false;
+      }
     });
 
     analysisStack.addControl(closeAnalysisBtn);
@@ -489,10 +491,12 @@ export default function BabylonScene() {
     let scalpelMesh: BABYLON.AbstractMesh | null = null;
     const tumorFragments: BABYLON.Mesh[] = [];
     let arteryMesh: BABYLON.AbstractMesh | null = null;
+    let kidneyBodyMesh: BABYLON.AbstractMesh | null = null;
 
     let sceneReady = false;
     let instrumentActive = false;
     let arteryCut = false;
+    let kidneyTouched = false;
     let simulationStarted = false;
     let simulationEnded = false;
 
@@ -518,8 +522,13 @@ export default function BabylonScene() {
       kidney.position = kidney.position.subtract(center);
 
       kidneyResult.meshes.forEach((mesh) => {
-        if (mesh.name.toLowerCase().includes("red")) {
+        if (
+          mesh.name.toLowerCase().includes("red") ||
+          mesh.name.toLowerCase().includes("artery")
+        ) {
           arteryMesh = mesh;
+        } else if (mesh.getTotalVertices() > 0) {
+          kidneyBodyMesh = mesh;
         }
       });
 
@@ -624,6 +633,8 @@ export default function BabylonScene() {
 
         if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERUP) {
           instrumentActive = false;
+          // Resetear estados de toque al soltar el ratón para permitir nuevas alertas
+          kidneyTouched = false;
         }
       });
 
@@ -661,7 +672,7 @@ export default function BabylonScene() {
       if (!simulationStarted) return;
       if (!sceneReady) return;
       if (!instrumentActive) return;
-      if (!cutter || !arteryMesh) return;
+      if (!cutter || !arteryMesh || !kidneyBodyMesh) return;
 
       // Se detecta el corte de la arteria
       if (!arteryCut && cutter.intersectsMesh(arteryMesh, true)) {
@@ -681,6 +692,20 @@ export default function BabylonScene() {
         setEvent("HEMORRHAGE");
       }
 
+      // Se detecta el contacto accidental con el riñón (sano)
+      if (!kidneyTouched && cutter.intersectsMesh(kidneyBodyMesh, true)) {
+        kidneyTouched = true;
+        console.warn("¡Contacto con tejido sano! ⚠️");
+
+        enviarEvento(
+          scalpelMesh?.position.x,
+          scalpelMesh?.position.y,
+          scalpelMesh?.position.z,
+          "KIDNEY_TOUCH",
+        );
+        setEvent("KIDNEY_TOUCH");
+      }
+
       // Se detecta el corte de los fragmentos del tumor
       tumorFragments.forEach((fragment, index) => {
         if (cutter.intersectsMesh(fragment, true)) {
@@ -692,9 +717,9 @@ export default function BabylonScene() {
             scalpelMesh?.position.x,
             scalpelMesh?.position.y,
             scalpelMesh?.position.z,
-            "TUMOR_TOUCH",
+            "TUMOR_REMOVAL",
           );
-          setEvent("TUMOR_TOUCH");
+          setEvent("TUMOR_REMOVAL");
 
           if (tumorFragments.length === 0) {
             console.log("Tumor completamente removido ✅");

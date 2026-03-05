@@ -92,14 +92,15 @@ def _paso3_benchmarking(df: pd.DataFrame) -> Dict:
     }
 
 def _paso4_analizar_riesgo(df: pd.DataFrame) -> Dict:
-    tumor_touches = (df["event"] == "TUMOR_TOUCH").sum()
+    tumor_removals = (df["event"] == "TUMOR_REMOVAL").sum()
     hemorrhages = (df["event"] == "HEMORRHAGE").sum()
+    kidney_touches = (df["event"] == "KIDNEY_TOUCH").sum()
     
-    # Análisis de cuadrantes (simple 2D para visualización)
+    # Análisis de cuadrantes (donde hubo complicaciones)
     mid_x = (df["x"].max() + df["x"].min()) / 2
     mid_y = (df["y"].max() + df["y"].min()) / 2
     
-    problemas = df[df["event"].isin(["TUMOR_TOUCH", "HEMORRHAGE"])]
+    problemas = df[df["event"].isin(["KIDNEY_TOUCH", "HEMORRHAGE"])]
     cuadrantes_criticos = []
     if not problemas.empty:
         for p in problemas.itertuples():
@@ -109,16 +110,23 @@ def _paso4_analizar_riesgo(df: pd.DataFrame) -> Dict:
             if pos not in cuadrantes_criticos: cuadrantes_criticos.append(pos)
             
     return {
-        "touches": int(tumor_touches),
+        "removals": int(tumor_removals),
         "hemorrhages": int(hemorrhages),
+        "kidney_touches": int(kidney_touches),
         "cuadrantes": cuadrantes_criticos
     }
 
 def _paso5_generar_feedback(m: Dict, b: Dict, r: Dict) -> Tuple[float, str]:
     score = 100.0
-    score -= r["touches"] * 8
-    score -= r["hemorrhages"] * 15
-    if m["economia"] > 1.5: score -= 10
+    # Penalizaciones (Basadas en técnica y seguridad)
+    score -= r["kidney_touches"] * 5
+    score -= r["hemorrhages"] * 25
+    if m["economia"] > 1.8: score -= 10
+    
+    # Bonificación por cumplimiento (si removió gran parte del tumor)
+    # Suponiendo que hay 25 fragmentos originalmente
+    progreso_tumor = (r["removals"] / 25.0) * 100
+    
     score = max(0, min(100, score))
     
     status = "🌟 EXCELENTE" if score >= 90 else "✅ BUENO" if score >= 75 else "⚠️ MEJORABLE" if score >= 60 else "❌ DEFICIENTE"
@@ -127,13 +135,14 @@ def _paso5_generar_feedback(m: Dict, b: Dict, r: Dict) -> Tuple[float, str]:
 
 ALERTAS CRÍTICAS
 · Hemorragias: {r["hemorrhages"]} {"(REVISAR TÉCNICA)" if r["hemorrhages"] > 0 else "(Ninguna)"}
-· Contactos Tumor: {r["touches"]}
+· Lesión Tejido Sano: {r["kidney_touches"]}
 · Cuadrantes de Riesgo: {", ".join(r["cuadrantes"]) if r["cuadrantes"] else "Ninguno"}
 
 MÉTRICAS DE DESTREZA
+· Remoción Tumor: {progreso_tumor:.1f}%
 · Economía: {m["economia"]:.2f}x (Ideal < 1.2x)
 · Fluidez (Jerk): {m["j_avg"]:.2f} 
-· Precisión: {b["precision"]:.1f}%
+· Precisión Path: {b["precision"]:.1f}%
 
 ESTADÍSTICAS
 · Duración: {m["duration"]:.1f}s
@@ -143,8 +152,9 @@ ESTADÍSTICAS
 RECOMENDACIONES
 """
     if r["hemorrhages"] > 0: feedback += "· Priorizar control vascular en cuadrantes críticos.\n"
+    if r["kidney_touches"] > 3: feedback += "· Mantener mayor distancia de los márgenes de tejido sano.\n"
     if m["economia"] > 1.8: feedback += "· Planificar trayectorias más directas para reducir fatiga.\n"
     if b["precision"] < 70: feedback += "· Mantener mayor estabilidad en la ejecución del path ideal.\n"
-    if score < 80: feedback += "· Incrementar práctica en simulador para mejorar coordinación motora.\n"
+    if progreso_tumor < 70: feedback += "· Asegurar la remoción total de fragmentos identificados.\n"
     
     return score, feedback.strip()
