@@ -51,7 +51,7 @@ Justina Backend es una **plataforma de simulación quirúrgica** construida con 
 
 - 🔐 **Autenticación JWT** - Token seguro con control de acceso basado en roles
 - 📡 **Comunicación WebSocket en Tiempo Real** - Streaming de telemetría desde simulaciones quirúrgicas
-- 🤖 **Integración con IA** - Análisis automatizado y puntuación de cirugías
+- 🤖 **Integración con IA** - Análisis avanzado mediante un pipeline de 5 pasos para puntear destreza y riesgo
 - 🗂️ **Seguimiento de Trayectorias** - Registro completo de movimientos durante los procedimientos
 - 📊 **API RESTful** - Operaciones completas con documentación OpenAPI/Swagger
 - 🐳 **Soporte Docker** - Listo para despliegue en contenedores
@@ -359,13 +359,16 @@ ws://localhost:8080/ws/{endpoint}
 }
 ```
 
-#### Eventos de Cirugía
-
 | Evento | Descripción |
 |--------|-------------|
 | `START` | Inicio de la sesión quirúrgica |
 | `MOVE` | Movimiento registrado durante la cirugía |
+| `TUMOR_TOUCH` | Contacto accidental con el tumor |
+| `KIDNEY_TOUCH` | Contacto accidental con tejido sano (riñón) |
+| `HEMORRHAGE` | Hemorragia detectada |
+| `TUMOR_REMOVAL` | Fragmento de tumor removido con éxito |
 | `FINISH` | Fin de la sesión quirúrgica |
+| `NONE` | Estado sin evento |
 
 ---
 
